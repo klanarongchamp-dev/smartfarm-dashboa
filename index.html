@@ -1,159 +1,101 @@
-<!DOCTYPE html><html lang="th">
+<!DOCTYPE html>
+<html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Farm Pro</title><script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script><style>
-body{
-margin:0;
-font-family:Arial,sans-serif;
-background:#f4f6f9;
-}
+<title>SmartFarm Dashboard V2</title>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<style>
+body{font-family:Arial,sans-serif;background:#eef7ee;margin:0}
+.header{background:#2e7d32;color:#fff;padding:18px;text-align:center;font-size:24px;font-weight:bold}
+.container{max-width:700px;margin:auto;padding:12px}
+.card{background:#fff;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;color:#fff;font-size:18px;margin:6px 0}
+.on{background:#2e7d32}.off{background:#c62828}
+input,textarea{width:100%;padding:10px;margin:6px 0;box-sizing:border-box}
+.task{display:flex;justify-content:space-between;padding:6px 0}
+</style>
+</head>
+<body>
+<div class="header">🌱 SmartFarm Dashboard V2</div>
+<div class="container">
 
-.header{
-background:#2196F3;
-color:#fff;
-padding:18px;
-text-align:center;
-font-size:24px;
-font-weight:bold;
-}
-
-.container{
-max-width:450px;
-margin:20px auto;
-padding:15px;
-}
-
-.card{
-background:#fff;
-border-radius:15px;
-padding:20px;
-margin-bottom:15px;
-box-shadow:0 2px 10px rgba(0,0,0,.1);
-}
-
-.status{
-font-size:20px;
-font-weight:bold;
-text-align:center;
-}
-
-.online{
-color:green;
-}
-
-.offline{
-color:red;
-}
-
-.btn{
-width:100%;
-padding:15px;
-border:none;
-border-radius:12px;
-font-size:18px;
-color:white;
-cursor:pointer;
-margin-top:10px;
-}
-
-.on{
-background:#28a745;
-}
-
-.off{
-background:#dc3545;
-}
-
-.data{
-font-size:18px;
-margin-top:10px;
-}
-</style></head><body><div class="header">
-🌱 Smart Farm Pro
-</div><div class="container"><div class="card">
-<div class="status">
-NodeMCU :
-<span id="nodeStatus" class="offline">OFFLINE</span>
+<div class="card">
+<h3>📡 สถานะระบบ</h3>
+<div>NodeMCU: <b id="nodeStatus">OFFLINE</b></div>
+<div>ปั๊ม: <b id="pumpStatus">OFF</b></div>
+<div>เวลา RTC: <b id="rtc">--:--:--</b></div>
 </div>
-</div><div class="card">
-<h3>💧 ปั๊มน้ำ</h3><button class="btn on" onclick="pumpOn()">
-🟢 เปิดปั๊ม
-</button><button class="btn off" onclick="pumpOff()">
-🔴 ปิดปั๊ม
-</button><p class="data">
-สถานะ :
-<b id="pumpStatus">OFF</b>
-</p>
-</div><div class="card">
-<h3>🕒 เวลา RTC</h3>
-<p id="rtc">--:--:--</p>
-</div></div><script>
 
-const client = mqtt.connect(
-'wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt',
-{
-username:'smartfarm',
-password:'Kla12345'
-}
-);
+<div class="card">
+<h3>💧 ควบคุมปั๊ม</h3>
+<button class="btn on" onclick="pumpOn()">🟢 เปิดปั๊ม</button>
+<button class="btn off" onclick="pumpOff()">🔴 ปิดปั๊ม</button>
+</div>
 
+<div class="card">
+<h3>🌾 พืชที่ปลูก</h3>
+<div>ชื่อพืช: <b id="plantName">แตงกวา</b></div>
+<div>วันที่ปลูก: <b id="plantDate">2026-05-25</b></div>
+<div>อายุพืช: <b id="plantAge"></b></div>
+</div>
+
+<div class="card">
+<h3>📝 งานวันนี้</h3>
+<input id="taskInput" placeholder="เพิ่มงาน">
+<button onclick="addTask()">เพิ่มงาน</button>
+<div id="tasks"></div>
+</div>
+
+<div class="card">
+<h3>📒 บันทึกฟาร์ม</h3>
+<textarea id="note"></textarea>
+<button onclick="saveNote()">บันทึก</button>
+</div>
+
+</div>
+
+<script>
+const client=mqtt.connect('wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt',{username:'smartfarm',password:'Kla12345'});
 client.on('connect',()=>{
-
-console.log('MQTT Connected');
-
-client.subscribe('farm/pump/status');
-client.subscribe('farm/time');
-client.subscribe('farm/node/status');
-
+ document.getElementById('nodeStatus').innerText='ONLINE';
+ client.subscribe('farm/pump/status');
+ client.subscribe('farm/time');
+ client.subscribe('farm/node/status');
 });
-
-client.on('message',(topic,message)=>{
-
-const msg = message.toString();
-
-if(topic === 'farm/pump/status')
-{
-document.getElementById('pumpStatus').innerHTML = msg;
-}
-
-if(topic === 'farm/time')
-{
-document.getElementById('rtc').innerHTML = msg;
-}
-
-if(topic === 'farm/node/status')
-{
-if(msg === 'ONLINE')
-{
-document.getElementById('nodeStatus').innerHTML='ONLINE';
-document.getElementById('nodeStatus').className='online';
-}
-else
-{
-document.getElementById('nodeStatus').innerHTML='OFFLINE';
-document.getElementById('nodeStatus').className='offline';
-}
-}
-
+client.on('message',(t,m)=>{
+ let msg=m.toString();
+ if(t==='farm/pump/status') document.getElementById('pumpStatus').innerText=msg;
+ if(t==='farm/time') document.getElementById('rtc').innerText=msg;
+ if(t==='farm/node/status') document.getElementById('nodeStatus').innerText=msg;
 });
+function pumpOn(){client.publish('farm/pump','ON');}
+function pumpOff(){client.publish('farm/pump','OFF');}
 
-client.on('close',()=>{
-
-document.getElementById('nodeStatus').innerHTML='OFFLINE';
-document.getElementById('nodeStatus').className='offline';
-
-});
-
-function pumpOn()
-{
-client.publish('farm/pump','ON');
+function calcAge(){
+ let start=new Date('2026-05-25');
+ let diff=Math.floor((Date.now()-start.getTime())/86400000);
+ document.getElementById('plantAge').innerText=diff+' วัน';
 }
+calcAge();
 
-function pumpOff()
-{
-client.publish('farm/pump','OFF');
+let tasks=JSON.parse(localStorage.getItem('tasks')||'[]');
+function renderTasks(){
+ let el=document.getElementById('tasks'); el.innerHTML='';
+ tasks.forEach((t,i)=>{
+  el.innerHTML += `<div class="task"><span>${t}</span><button onclick="delTask(${i})">ลบ</button></div>`;
+ });
+ localStorage.setItem('tasks',JSON.stringify(tasks));
 }
+function addTask(){
+ let v=document.getElementById('taskInput').value;
+ if(v){tasks.push(v);renderTasks();document.getElementById('taskInput').value='';}
+}
+function delTask(i){tasks.splice(i,1);renderTasks();}
+renderTasks();
 
-</script></body>
+document.getElementById('note').value=localStorage.getItem('farmNote')||'';
+function saveNote(){localStorage.setItem('farmNote',document.getElementById('note').value);alert('บันทึกแล้ว');}
+</script>
+</body>
 </html>
