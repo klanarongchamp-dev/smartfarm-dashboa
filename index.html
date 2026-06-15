@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartFarm V3</title>
+
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#eef7ee;
+}
+
+.header{
+background:#2e7d32;
+color:white;
+padding:20px;
+text-align:center;
+font-size:24px;
+font-weight:bold;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+padding:15px;
+}
+
+.card{
+background:white;
+border-radius:16px;
+padding:16px;
+margin-bottom:15px;
+box-shadow:0 2px 10px rgba(0,0,0,.1);
+}
+
+.btn{
+width:100%;
+padding:15px;
+border:none;
+border-radius:12px;
+color:white;
+font-size:18px;
+margin-top:8px;
+}
+
+.on{
+background:#4CAF50;
+}
+
+.off{
+background:#F44336;
+}
+
+input{
+width:100%;
+padding:10px;
+margin-top:5px;
+margin-bottom:10px;
+}
+
+.task{
+display:flex;
+justify-content:space-between;
+padding:6px;
+border-bottom:1px solid #ddd;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+🌱 สวนลุงนะ ฟาร์ม
+</div>
+
+<div class="container">
+
+<div class="card">
+<h3>📡 สถานะระบบ</h3>
+
+NodeMCU :
+<b id="nodeStatus">OFFLINE</b>
+
+<br><br>
+
+ปั๊ม :
+<b id="pumpStatus">OFF</b>
+
+<br><br>
+
+เวลา :
+<b id="rtc">--:--:--</b>
+</div>
+
+<div class="card">
+<h3>💧 ควบคุมปั๊ม</h3>
+
+<button class="btn on"
+onclick="pumpOn()">
+🟢 เปิดปั๊ม
+</button>
+
+<button class="btn off"
+onclick="pumpOff()">
+🔴 ปิดปั๊ม
+</button>
+</div>
+
+<div class="card">
+<h3>🌾 พืชที่ปลูก</h3>
+
+ชื่อพืช :
+<b>แตงกวา</b>
+
+<br><br>
+
+วันที่ปลูก :
+<b>25/05/2569</b>
+
+<br><br>
+
+อายุพืช :
+<b id="age"></b>
+</div>
+
+<div class="card">
+<h3>📝 งานวันนี้</h3>
+
+<input
+id="taskInput"
+placeholder="เพิ่มงาน">
+
+<button onclick="addTask()">
+เพิ่มงาน
+</button>
+
+<div id="tasks"></div>
+
+</div>
+
+<div class="card">
+<h3>📒 บันทึกฟาร์ม</h3>
+
+<textarea
+id="note"
+style="width:100%;height:120px;">
+</textarea>
+
+<br><br>
+
+<button onclick="saveNote()">
+บันทึก
+</button>
+</div>
+
+<div class="card">
+<h3>⏰ ตารางรดน้ำ</h3>
+
+🌅 เช้า
+
+06:00 เปิด
+
+07:00 ปิด
+
+<br><br>
+
+🌙 เย็น
+
+17:30 เปิด
+
+18:30 ปิด
+</div>
+
+</div>
+
+<script>
+
+const client = mqtt.connect(
+'wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt',
+{
+username:'smartfarm',
+password:'Kla12345'
+}
+);
+
+client.on('connect',()=>{
+
+document.getElementById('nodeStatus')
+.innerHTML='ONLINE';
+
+client.subscribe('farm/pump/status');
+client.subscribe('farm/time');
+client.subscribe('farm/node/status');
+
+});
+
+client.on('message',(topic,message)=>{
+
+let msg=message.toString();
+
+if(topic==='farm/pump/status')
+{
+document.getElementById('pumpStatus')
+.innerHTML=msg;
+}
+
+if(topic==='farm/time')
+{
+document.getElementById('rtc')
+.innerHTML=msg;
+}
+
+if(topic==='farm/node/status')
+{
+document.getElementById('nodeStatus')
+.innerHTML=msg;
+}
+
+});
+
+function pumpOn()
+{
+client.publish('farm/pump','ON');
+}
+
+function pumpOff()
+{
+client.publish('farm/pump','OFF');
+}
+
+const plantDate =
+new Date('2026-05-25');
+
+const diff =
+Math.floor(
+(Date.now()-plantDate.getTime())
+/86400000
+);
+
+document.getElementById('age')
+.innerHTML=
+diff + ' วัน';
+
+let tasks =
+JSON.parse(
+localStorage.getItem('tasks')
+|| '[]'
+);
+
+function renderTasks()
+{
+const el =
+document.getElementById('tasks');
+
+el.innerHTML='';
+
+tasks.forEach((t,i)=>{
+
+el.innerHTML +=
+`
+<div class="task">
+<span>${t}</span>
+<button onclick="delTask(${i})">
+ลบ
+</button>
+</div>
+`;
+
+});
+
+localStorage.setItem(
+'tasks',
+JSON.stringify(tasks)
+);
+}
+
+function addTask()
+{
+const txt =
+document.getElementById('taskInput').value;
+
+if(txt!='')
+{
+tasks.push(txt);
+
+renderTasks();
+
+document.getElementById('taskInput').value='';
+}
+}
+
+function delTask(i)
+{
+tasks.splice(i,1);
+renderTasks();
+}
+
+renderTasks();
+
+document.getElementById('note').value =
+localStorage.getItem('farmNote') || '';
+
+function saveNote()
+{
+localStorage.setItem(
+'farmNote',
+document.getElementById('note').value
+);
+
+alert('บันทึกแล้ว');
+}
+
+</script>
+
+</body>
+</html>
