@@ -8,75 +8,33 @@
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
 <style>
-:root{
---bg:#f4f7f5;
---primary:#2d6a4f;
---dark:#1b4332;
-
-<div class="bottom-nav">
-
-<button>🏠</button>
-
-<button>💧</button>
-
-<button>🌱</button>
-
-<button>📝</button>
-
-<button>📒</button>
-
-</div>
-
-.bottom-nav{
-position:fixed;
-bottom:0;
-left:0;
-width:100%;
-background:white;
-display:flex;
-justify-content:space-around;
-padding:12px;
-box-shadow:0 -2px 10px rgba(0,0,0,.1);
-}
-  
 body{
 margin:0;
 font-family:Arial,sans-serif;
-background:var(--bg);
+background:#eef7ee;
 }
 
 .header{
-background:linear-gradient(
-135deg,
-#1b4332,
-#2d6a4f
-);
+background:#2e7d32;
 color:white;
-padding:30px;
+padding:20px;
 text-align:center;
+font-size:24px;
+font-weight:bold;
 }
 
 .container{
-width:95%;
-max-width:1200px;
+max-width:700px;
 margin:auto;
 padding:15px;
 }
 
-.cards{
-display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(180px,1fr));
-gap:15px;
-margin-bottom:15px;
-}
-
 .card{
 background:white;
-padding:20px;
-border-radius:20px;
-box-shadow:
-0 4px 12px rgba(0,0,0,.08);
+border-radius:16px;
+padding:16px;
+margin-bottom:15px;
+box-shadow:0 2px 10px rgba(0,0,0,.1);
 }
 
 .btn{
@@ -116,29 +74,26 @@ border-bottom:1px solid #ddd;
 <body>
 
 <div class="header">
-<h1>🌱 สวนลุงนะ ฟาร์ม</h1>
-<p>Smart Farm Dashboard</p>
+🌱 สวนลุงนะ ฟาร์ม
 </div>
-<<div class="cards">
+
+<div class="container">
 
 <div class="card">
-<h3>📡 ESP</h3>
+<h3>📡 สถานะระบบ</h3>
+
+NodeMCU :
 <b id="nodeStatus">OFFLINE</b>
-</div>
 
-<div class="card">
-<h3>💧 Pump</h3>
+<br><br>
+
+ปั๊ม :
 <b id="pumpStatus">OFF</b>
-</div>
 
-<div class="card">
-<h3>🕒 RTC</h3>
+<br><br>
+
+เวลา :
 <b id="rtc">--:--:--</b>
-</div>
-
-<div class="card">
-<h3>🥒 อายุพืช</h3>
-<b id="age"></b>
 </div>
 
 <div class="card">
@@ -167,6 +122,10 @@ onclick="pumpOff()">
 <b>25/05/2569</b>
 
 <br><br>
+
+อายุพืช :
+<b id="age"></b>
+</div>
 
 <div class="card">
 <h3>📝 งานวันนี้</h3>
