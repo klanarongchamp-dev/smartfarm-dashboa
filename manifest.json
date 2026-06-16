@@ -1,0 +1,15 @@
+{
+  "name":"สวนลุงนะ ฟาร์ม",
+  "short_name":"สวนลุงนะ",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#14532d",
+  "theme_color":"#22c55e",
+  "icons":[
+    {
+      "src":"logo_suanlungna.png",
+      "sizes":"512x512",
+      "type":"image/png"
+    }
+  ]
+}

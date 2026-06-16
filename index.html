@@ -4,7 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>SmartFarm Dashboard V4</title>
+<title>สวนลุงนะ ฟาร์ม</title>
+
+<link rel="apple-touch-icon" href="logo_suanlungna.png">
+<link rel="icon" type="image/png" href="logo_suanlungna.png">
+<link rel="manifest" href="manifest.json">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="สวนลุงนะ">
+<meta name="theme-color" content="#22c55e">
 
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -162,6 +171,18 @@ canvas{
 width:100%!important;
 }
 
+.logo{
+width:100px;
+height:100px;
+object-fit:cover;
+border-radius:50%;
+background:white;
+padding:6px;
+margin-bottom:12px;
+box-shadow:0 6px 20px rgba(0,0,0,.2);
+border:4px solid rgba(255,255,255,.8);
+}
+
 @media(max-width:768px){
 .header h1{
 font-size:24px;
@@ -174,6 +195,7 @@ font-size:24px;
 <body>
 
 <div class="header">
+<img src="logo_suanlungna.png" class="logo" alt="สวนลุงนะ ฟาร์ม">
 <h1>🌱 สวนลุงนะ ฟาร์ม</h1>
 <p>Smart Farm Dashboard V4</p>
 </div>
