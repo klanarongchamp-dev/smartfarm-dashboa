@@ -53,23 +53,45 @@ margin:auto;
 padding:15px;
 }
 
-.header{
-background:linear-gradient(135deg,#14532d,#22c55e);
-padding:20px;
-text-align:center;
-color:white;
-border-radius:0 0 35px 35px;
-box-shadow:var(--shadow);
+.status-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:16px;
+margin-bottom:20px;
 }
 
-.logo{
-width:90px;
-height:90px;
-border-radius:50%;
-background:white;
-padding:5px;
-object-fit:cover;
-margin-bottom:10px;
+.status-card{
+background:#fff;
+border-radius:24px;
+padding:20px;
+text-align:center;
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+height:160px;
+
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+
+transition:.3s;
+}
+
+.status-card:hover{
+transform:translateY(-3px);
+}
+
+.status-card h4{
+font-size:18px;
+margin-bottom:12px;
+font-weight:600;
+color:#555;
+}
+
+.status-card b{
+font-size:32px;
+font-weight:700;
+line-height:1.2;
+color:#111;
 }
 
 .card{
@@ -78,78 +100,42 @@ border-radius:28px;
 padding:24px;
 margin-bottom:20px;
 box-shadow:0 5px 18px rgba(0,0,0,.08);
-
-.status-grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
-margin-bottom:20px;
-}
-
-
-.status-card{
-background:#fff;
-border-radius:24px;
-padding:20px;
-text-align:center;
-box-shadow:0 4px 15px rgba(0,0,0,.08);
-min-height:140px;
-
-display:flex;
-flex-direction:column;
-justify-content:center;
-}
-
-.status-card h4{
-font-size:18px;
-margin-bottom:12px;
-font-weight:600;
-color:#444;
-}
-
-.status-card b{
-font-size:42px;
-font-weight:700;
-color:#111;
-}
- 
-.btn{
-width:100%;
-padding:14px;
-border:none;
-border-radius:15px;
-font-size:16px;
-font-weight:bold;
-cursor:pointer;
-color:white;
-margin-bottom:10px;
-}
-
-.on{
-background:#22c55e;
-}
-
-.off{
-background:#ef4444;
-}
-
-input,
-textarea,
-select{
-width:100%;
-padding:12px;
-border-radius:12px;
-border:1px solid #ddd;
-margin-bottom:10px;
-}
-
-textarea{
-height:120px;
 }
 
 canvas{
-max-width:100%;
-height:300px !important;
+width:100%!important;
+height:260px!important;
+}
+
+.header{
+background:linear-gradient(135deg,#14532d,#22c55e);
+padding:30px 20px;
+text-align:center;
+color:white;
+border-radius:0 0 40px 40px;
+box-shadow:0 8px 24px rgba(0,0,0,.12);
+}
+
+.logo{
+width:100px;
+height:100px;
+border-radius:50%;
+background:white;
+padding:6px;
+object-fit:cover;
+margin-bottom:10px;
+}
+
+@media(max-width:768px){
+
+.status-card{
+height:140px;
+}
+
+.status-card b{
+font-size:28px;
+}
+
 }
 
 .online{
@@ -236,13 +222,10 @@ onclick="login()">
 
 <div class="header">
 
-<img
-src="suanlungna_icon_512.png"
-class="logo">
+<img src="suanlungna_icon_512.png" class="logo">
 
 <h1>🌱 สวนลุงนะ ฟาร์ม</h1>
 
-<p>Smart Farm Dashboard V5</p>
 
 <br>
 
@@ -289,18 +272,20 @@ OFF
 </div>
 <div class="status-grid">
 
+<div class="status-grid">
+
 <div class="status-card">
 <h4>🌡️ อุณหภูมิ</h4>
 <b id="temp">--</b>
 </div>
 
 <div class="status-card">
-<h4>💦 ความชื้นอากาศ</h4>
+<h4>💦 ความชื้น</h4>
 <b id="hum">--</b>
 </div>
 
 <div class="status-card">
-<h4>🌦️ สภาพอากาศ</h4>
+<h4>🌤️ อากาศ</h4>
 <b id="weather">--</b>
 </div>
 
@@ -315,13 +300,22 @@ OFF
 </div>
 
 <div class="status-card">
-<h4>🌱 ความชื้นดิน</h4>
-<b id="soil">--</b>
+<h4>🌱 เซ็นเซอร์</h4>
+
+<div style="font-size:18px">
+ดิน :
+<span id="soil">--</span>%
 </div>
 
-<div class="status-card">
-<h4>☀️ แสง</h4>
-<b id="light">--</b>
+<br>
+
+<div style="font-size:18px">
+แสง :
+<span id="light">--</span>
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -859,7 +853,8 @@ datasets:[{
 label:'Humidity',
 data:humData,
 tension:.4,
-borderWidth:3
+borderWidth:4,
+fill:true
 }]
 },
 options:{
