@@ -202,48 +202,6 @@ font-size:24px;
 
 <div class="container">
 
-<div class="status-grid">
-
-<div class="status-card">
-<h4>NodeMCU</h4>
-<b id="nodeStatus" class="offline">OFFLINE</b>
-</div>
-
-<div class="status-card">
-<h4>ปั๊มน้ำ</h4>
-<b id="pumpStatus">OFF</b>
-</div>
-
-<div class="status-card">
-<h4>เวลา</h4>
-<b id="rtc">--:--</b>
-</div>
-
-</div>
-
-<div class="status-grid">
-
-<div class="status-card">
-<h4>🌡️ อุณหภูมิ</h4>
-<b id="temp">0°C</b>
-</div>
-
-<div class="status-card">
-<h4>💧 ดิน</h4>
-<b id="soil">0%</b>
-</div>
-
-<div class="status-card">
-<h4>💦 อากาศ</h4>
-<b id="hum">0%</b>
-</div>
-
-<div class="status-card">
-<h4>☀️ แสง</h4>
-<b id="light">0</b>
-</div>
-
-</div>
 
 <div class="card">
 <h3>💧 ควบคุมปั๊มน้ำ</h3>
@@ -258,11 +216,6 @@ font-size:24px;
 </div>
 
 <div class="card">
-<h3>📈 กราฟอุณหภูมิ</h3>
-<canvas id="tempChart"></canvas>
-</div>
-
-<div class="card">
 <h3>🌾 ข้อมูลพืช</h3>
 
 <div class="info">
@@ -274,7 +227,7 @@ font-size:24px;
 </div>
 
 <div class="card">
-<h3>📝 งานวันนี้</h3>
+<h3>📝 งานพรุ่งนี้</h3>
 
 <input id="taskInput" placeholder="เพิ่มงาน">
 
@@ -287,31 +240,86 @@ font-size:24px;
 <div id="tasks"></div>
 </div>
 
+<!DOCTYPE 
+
+<div class="card"><h3>💰 รายรับ</h3><h2 id="income">0</h2></div>
+<div class="card"><h3>💸 รายจ่าย</h3><h2 id="expense">0</h2></div>
+<div class="card"><h3>📈 กำไร</h3><h2 id="profit">0</h2></div>
+</div>
+
 <div class="card">
-<h3>📒 บันทึกฟาร์ม</h3>
+<h3>เพิ่มรายการ</h3>
+<input type="date" id="date">
+<select id="type">
+<option value="income">รายรับ</option>
+<option value="expense">รายจ่าย</option>
+</select>
+<input type="text" id="name" placeholder="รายการ">
+<input type="number" id="amount" placeholder="จำนวนเงิน">
+<button onclick="addItem()">บันทึก</button>
+</div>
 
-<textarea id="note"></textarea>
+<div class="card">
+<h3>รายการทั้งหมด</h3>
+<table>
+<thead>
+<tr>
+<th>วันที่</th>
+<th>ประเภท</th>
+<th>รายการ</th>
+<th>จำนวนเงิน</th>
+</tr>
+</thead>
+<tbody id="tb"></tbody>
+</table>
+</div>
 
-<br><br>
+<script>
+let data = JSON.parse(localStorage.getItem("farmData")||"[]");
+
+function save(){
+ localStorage.setItem("farmData",JSON.stringify(data));
+ render();
+}
+
+function addItem(){
+ data.push({
+   date:date.value,
+   type:type.value,
+   name:name.value,
+   amount:Number(amount.value)
+ });
+ save();
+}
+
+function render(){
+ let income=0,expense=0;
+ tb.innerHTML="";
+ data.forEach(r=>{
+   if(r.type==="income") income+=r.amount;
+   else expense+=r.amount;
+
+   tb.innerHTML += `<tr>
+   <td>${r.date}</td>
+   <td>${r.type==="income"?"รายรับ":"รายจ่าย"}</td>
+   <td>${r.name}</td>
+   <td>${r.amount.toLocaleString()}</td>
+   </tr>`;
+ });
+
+ document.getElementById("income").innerText=income.toLocaleString()+" บาท";
+ document.getElementById("expense").innerText=expense.toLocaleString()+" บาท";
+ document.getElementById("profit").innerText=(income-expense).toLocaleString()+" บาท";
+}
+
+
 
 <button class="btn on" onclick="saveNote()">
 บันทึก
 </button>
 </div>
 
-<div class="card">
-<h3>⏰ ตารางรดน้ำ</h3>
 
-<div class="info">
-🌅 เช้า : 06:00 - 07:00<br>
-🌙 เย็น : 17:30 - 18:30
-</div>
-
-</div>
-
-</div>
-
-<script>
 
 const client = mqtt.connect(
 'wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt',
