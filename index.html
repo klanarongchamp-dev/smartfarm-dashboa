@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>สวนลุงนะ ฟาร์ม</title>
+
+<link rel="apple-touch-icon" href="suanlungna_icon_180.png">
+<link rel="icon" href="suanlungna_icon_512.png">
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#22c55e">
+
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+:root{
+--green:#22c55e;
+--dark:#14532d;
+--bg:#f4f7f5;
+--card:#ffffff;
+--danger:#ef4444;
+--shadow:0 8px 24px rgba(0,0,0,.08);
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
+body{
+background:var(--bg);
+color:#222;
+padding-bottom:40px;
+}
+
+body.dark{
+background:#0f172a;
+color:white;
+}
+
+body.dark .card,
+body.dark .status-card{
+background:#1e293b;
+color:white;
+}
+
+body.dark h3,
+body.dark b{
+color:white;
+}
+
+.header{
+background:linear-gradient(135deg,#14532d,#22c55e);
+padding:30px 20px;
+color:white;
+text-align:center;
+border-radius:0 0 25px 25px;
+box-shadow:var(--shadow);
+}
+
+.logo{
+width:100px;
+height:100px;
+border-radius:50%;
+background:white;
+padding:6px;
+object-fit:cover;
+margin-bottom:10px;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:15px;
+}
+
+.card{
+background:var(--card);
+padding:20px;
+border-radius:20px;
+margin-bottom:15px;
+box-shadow:var(--shadow);
+}
+
+.card h3{
+margin-bottom:15px;
+color:var(--dark);
+}
+
+.status-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:12px;
+margin-bottom:15px;
+}
+
+.status-card{
+background:white;
+padding:15px;
+border-radius:18px;
+text-align:center;
+box-shadow:var(--shadow);
+}
+
+.status-card h4{
+font-size:14px;
+margin-bottom:8px;
+color:#666;
+}
+
+.status-card b{
+font-size:24px;
+}
+
+.btn{
+width:100%;
+padding:14px;
+border:none;
+border-radius:15px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+color:white;
+margin-bottom:10px;
+}
+
+.on{
+background:#22c55e;
+}
+
+.off{
+background:#ef4444;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+border:1px solid #ddd;
+}
+
+th{
+background:#22c55e;
+color:white;
+}
+
+input,
+textarea,
+select{
+width:100%;
+padding:12px;
+border:1px solid #ddd;
+border-radius:12px;
+margin-bottom:10px;
+}
+
+textarea{
+height:120px;
+}
+
+.online{
+color:#22c55e;
+}
+
+.offline{
+color:#ef4444;
+}
+
+canvas{
+width:100%!important;
+}
+
+.task{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
+.task button{
+background:#ef4444;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:8px;
+cursor:pointer;
+}
+
+@media(max-width:768px){
+.header h1{
+font-size:24px;
+}
+}
+
+</style>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+const firebaseConfig = {
+ apiKey: "AIzaSyAimbgBcmqy_2eyHTwuflNKfThHbzssnoM",
+ authDomain: "sonlungna-smartfarm.firebaseapp.com",
+ projectId: "sonlungna-smartfarm",
+ storageBucket: "sonlungna-smartfarm.firebasestorage.app",
+ messagingSenderId: "348111875750",
+ appId: "1:348111875750:web:5cd85cf82fd88d6a830e67"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.login = async function(){
+ const email = document.getElementById('email').value;
+ const password = document.getElementById('password').value;
+ try{
+   await signInWithEmailAndPassword(auth,email,password);
+ }catch(e){
+   alert(e.message);
+ }
+}
+
+window.logout = function(){
+ signOut(auth);
+}
+
+onAuthStateChanged(auth,(user)=>{
+ const lp=document.getElementById('loginPage');
+ const db=document.getElementById('dashboard');
+ if(!lp || !db) return;
+ if(user){
+   lp.style.display='none';
+   db.style.display='block';
+ }else{
+   lp.style.display='block';
+   db.style.display='none';
+ }
+});
+</script>
+
+</head>
+
+<body>
+<div id="loginPage" class="container">
+<div class="card" style="margin-top:40px">
+<h2>🔒 เข้าสู่ระบบสวนลุงนะ</h2>
+<input id="email" type="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+<button class="btn on" onclick="login()">เข้าสู่ระบบ</button>
+</div>
+</div>
+
+<div id="dashboard" style="display:none;">
+
+
+<div class="header">
+
+<img src="suanlungna_icon_512.png"
+class="logo"
+alt="สวนลุงนะ ฟาร์ม">
+
+<h1>🌱 สวนลุงนะ ฟาร์ม</h1>
+
+<br>
+
+<button class="btn on" onclick="toggleDark()">
+🌙 Dark Mode
+</button>
+
+</div>
+
+<div class="container">
+
+<div class="status-grid">
+
+<div class="status-card">
+<h4>📡 NodeMCU</h4>
+<b id="nodeStatus">OFFLINE</b>
+</div>
+
+<div class="status-card">
+<h4>💧 Pump</h4>
+<b id="pumpStatus">OFF</b>
+</div>
+
+<div class="status-card">
+<h4>⏰ เวลา</h4>
+<b id="rtc">--:--:--</b>
+</div>
+
+</div>
+
+<div class="status-grid">
+<div class="status-card"><h4>🌡️ อุณหภูมิ</h4><b id="temp">--</b></div>
+<div class="status-card"><h4>💦 ความชื้น</h4><b id="hum">--</b></div>
+<div class="status-card"><h4>🌱 ความชื้นดิน</h4><b id="soil">--</b></div>
+<div class="status-card"><h4>☀️ แสง</h4><b id="light">--</b></div>
+</div>
+
+<div class="card">
+
+<h3>💧 ควบคุมปั๊มน้ำ</h3>
+
+<button class="btn on" onclick="pumpOn()">
+🟢 เปิดปั๊ม
+</button>
+
+<button class="btn off" onclick="pumpOff()">
+🔴 ปิดปั๊ม
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>🌾 ข้อมูลพืช</h3>
+
+<p>
+ชื่อพืช : <b>แตงกวา</b><br>
+วันที่ปลูก : <b>25/05/2569</b><br>
+อายุพืช : <b id="age">0 วัน</b>
+</p>
+
+</div>
+
+<div class="card">
+
+<h3>📝 งานประจำวัน</h3>
+
+<input
+id="taskInput"
+placeholder="เพิ่มงานในสวน">
+
+<button
+class="btn on"
+onclick="addTask()">
+เพิ่มงาน
+</button>
+
+<div id="tasks"></div>
+
+</div>
+
+<div class="card">
+
+<h3>📒 บันทึกฟาร์ม</h3>
+
+<textarea
+id="note"
+placeholder="บันทึกเหตุการณ์ในสวน">
+</textarea>
+
+<button
+class="btn on"
+onclick="saveNote()">
+บันทึก
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>📈 กราฟอุณหภูมิ</h3>
+
+<canvas id="tempChart"></canvas>
+
+</div>
+
+<div class="card">
+
+<h3>📈 กราฟความชื้น</h3>
+
+<canvas id="humChart"></canvas>
+
+</div>
+<div class="card">
+
+<h3>💰 สรุปการเงิน</h3>
+
+<div class="status-grid">
+
+<div class="status-card">
+<h4>💵 รายรับ</h4>
+<b id="income">0 บาท</b>
+</div>
+
+<div class="status-card">
+<h4>💸 รายจ่าย</h4>
+<b id="expense">0 บาท</b>
+</div>
+
+<div class="status-card">
+<h4>📈 กำไร</h4>
+<b id="profit">0 บาท</b>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>➕ เพิ่มรายการการเงิน</h3>
+
+<input type="date" id="date">
+
+<select id="type">
+
+<option value="income">
+รายรับ
+</option>
+
+<option value="expense">
+รายจ่าย
+</option>
+
+</select>
+
+<input
+type="text"
+id="name"
+placeholder="ชื่อรายการ">
+
+<input
+type="number"
+id="amount"
+placeholder="จำนวนเงิน">
+
+<button
+class="btn on"
+onclick="addItem()">
+
+💾 บันทึกรายการ
+
+</button>
+
+</div>
+<div class="card">
+
+<h3>📋 รายการทั้งหมด</h3>
+
+<table>
+
+<thead>
+
+<tr>
+<th>วันที่</th>
+<th>ประเภท</th>
+<th>รายการ</th>
+<th>จำนวนเงิน</th>
+<th>ลบ</th>
+</tr>
+
+</thead>
+
+<tbody id="tb">
+
+</tbody>
+
+</table>
+
+</div>
+
+<script>
+
+function toggleDark(){
+document.body.classList.toggle('dark');
+}
+
+// ================= MQTT =================
+
+const client = mqtt.connect(
+'wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt',
+{
+username:'smartfarm',
+password:'Kla12345',
+reconnectPeriod:3000
+}
+);
+
+client.on('connect',()=>{
+
+document.getElementById('nodeStatus').innerHTML='ONLINE';
+document.getElementById('nodeStatus').className='online';
+
+client.subscribe('farm/pump/status');
+client.subscribe('farm/node/status');
+client.subscribe('farm/time');
+client.subscribe('farm/temp');
+client.subscribe('farm/hum');
+client.subscribe('farm/soil');
+client.subscribe('farm/light');
+
+});
+
+client.on('close',offline);
+client.on('error',offline);
+
+function offline(){
+
+document.getElementById('nodeStatus').innerHTML='OFFLINE';
+document.getElementById('nodeStatus').className='offline';
+
+}
+
+client.on('message',(topic,message)=>{
+
+const msg = message.toString();
+
+if(topic==='farm/pump/status')
+document.getElementById('pumpStatus').innerHTML=msg;
+
+if(topic==='farm/node/status')
+document.getElementById('nodeStatus').innerHTML=msg;
+
+if(topic==='farm/time')
+document.getElementById('rtc').innerHTML=msg;
+
+if(topic==='farm/temp'){
+document.getElementById('temp').innerHTML=msg+'°C';
+updateTempChart(Number(msg));
+}
+
+if(topic==='farm/hum'){
+document.getElementById('hum').innerHTML=msg+'%';
+updateHumChart(Number(msg));
+}
+
+if(topic==='farm/soil')
+document.getElementById('soil').innerHTML=msg+'%';
+
+if(topic==='farm/light')
+document.getElementById('light').innerHTML=msg;
+
+});
+
+function pumpOn(){
+client.publish('farm/pump','ON');
+}
+
+function pumpOff(){
+client.publish('farm/pump','OFF');
+}
+
+// ================= อายุพืช =================
+
+const plantDate =
+new Date('2026-05-25');
+
+function updateAge(){
+
+const diff =
+Math.floor(
+(Date.now()-plantDate.getTime())
+/86400000
+);
+
+document.getElementById('age').innerHTML =
+diff + ' วัน';
+
+}
+
+updateAge();
+
+// ================= Chart =================
+
+const tempLabels=[];
+const tempData=[];
+
+const humLabels=[];
+const humData=[];
+
+const tempChart =
+new Chart(
+document.getElementById('tempChart'),
+{
+type:'line',
+data:{
+labels:tempLabels,
+datasets:[{
+label:'Temperature',
+data:tempData,
+tension:.4
+}]
+}
+}
+);
+
+const humChart =
+new Chart(
+document.getElementById('humChart'),
+{
+type:'line',
+data:{
+labels:humLabels,
+datasets:[{
+label:'Humidity',
+data:humData,
+tension:.4
+}]
+}
+}
+);
+
+function updateTempChart(v){
+
+tempLabels.push(
+new Date().toLocaleTimeString()
+);
+
+tempData.push(v);
+
+if(tempLabels.length>20){
+tempLabels.shift();
+tempData.shift();
+}
+
+tempChart.update();
+
+}
+
+function updateHumChart(v){
+
+humLabels.push(
+new Date().toLocaleTimeString()
+);
+
+humData.push(v);
+
+if(humLabels.length>20){
+humLabels.shift();
+humData.shift();
+}
+
+humChart.update();
+
+}
+
+// ================= งานประจำวัน =================
+
+let tasks =
+JSON.parse(
+localStorage.getItem('tasks') || '[]'
+);
+
+function renderTasks(){
+
+const el =
+document.getElementById('tasks');
+
+el.innerHTML='';
+
+tasks.forEach((t,i)=>{
+
+el.innerHTML += `
+<div class="task">
+<span>${t}</span>
+<button onclick="delTask(${i})">
+ลบ
+</button>
+</div>
+`;
+
+});
+
+localStorage.setItem(
+'tasks',
+JSON.stringify(tasks)
+);
+
+}
+
+function addTask(){
+
+const txt =
+document.getElementById('taskInput').value;
+
+if(txt.trim()){
+
+tasks.push(txt);
+
+renderTasks();
+
+document.getElementById('taskInput').value='';
+
+}
+
+}
+
+function delTask(i){
+
+tasks.splice(i,1);
+
+renderTasks();
+
+}
+
+renderTasks();
+
+// ================= Farm Note =================
+
+document.getElementById('note').value =
+localStorage.getItem('farmNote') || '';
+
+function saveNote(){
+
+localStorage.setItem(
+'farmNote',
+document.getElementById('note').value
+);
+
+alert('บันทึกเรียบร้อย');
+
+}
+
+// =====================
+// รายรับ รายจ่าย
+// =====================
+
+let farmData =
+JSON.parse(
+localStorage.getItem("farmData") || "[]"
+);
+
+function saveFinance(){
+
+localStorage.setItem(
+"farmData",
+JSON.stringify(farmData)
+);
+
+renderFinance();
+
+}
+
+function addItem(){
+
+const date =
+document.getElementById("date").value;
+
+const type =
+document.getElementById("type").value;
+
+const name =
+document.getElementById("name").value;
+
+const amount =
+Number(
+document.getElementById("amount").value
+);
+
+if(!date || !name || !amount){
+
+alert("กรอกข้อมูลให้ครบ");
+
+return;
+
+}
+
+farmData.push({
+
+date:date,
+type:type,
+name:name,
+amount:amount
+
+});
+
+saveFinance();
+
+document.getElementById("name").value="";
+document.getElementById("amount").value="";
+
+}
+
+function deleteItem(index){
+
+if(confirm("ต้องการลบรายการนี้ ?")){
+
+farmData.splice(index,1);
+
+saveFinance();
+
+}
+
+}
+
+function renderFinance(){
+
+let income=0;
+let expense=0;
+
+const tb =
+document.getElementById("tb");
+
+tb.innerHTML="";
+
+farmData.forEach((row,index)=>{
+
+if(row.type==="income"){
+
+income += row.amount;
+
+}else{
+
+expense += row.amount;
+
+}
+
+tb.innerHTML += `
+
+<tr>
+
+<td>${row.date}</td>
+
+<td>
+${row.type==="income"
+? "💵 รายรับ"
+: "💸 รายจ่าย"}
+</td>
+
+<td>${row.name}</td>
+
+<td>
+${row.amount.toLocaleString()}
+</td>
+
+<td>
+
+<button
+onclick="deleteItem(${index})"
+style="
+background:#ef4444;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:8px;
+cursor:pointer;
+">
+
+ลบ
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+document.getElementById("income")
+.innerText =
+income.toLocaleString()+" บาท";
+
+document.getElementById("expense")
+.innerText =
+expense.toLocaleString()+" บาท";
+
+document.getElementById("profit")
+.innerText =
+(income-expense).toLocaleString()+" บาท";
+
+}
+
+renderFinance();
+
+
+</script>
+
+
+<div class="container">
+<div class="card">
+<button class="btn off" onclick="logout()">🚪 ออกจากระบบ</button>
+</div>
+</div>
+</div>
+</body>
+</html>
