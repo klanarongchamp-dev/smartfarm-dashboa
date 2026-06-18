@@ -404,18 +404,86 @@ onclick="addItem()">
 
 <div class="card">
 
-<h3>📋 รายการทั้งหมด</h3>
+<div class="status-grid">
+
+<div class="status-card">
+<h4>💰 รายรับรวม</h4>
+<b id="income">0 บาท</b>
+</div>
+
+<div class="status-card">
+<h4>💸 รายจ่ายรวม</h4>
+<b id="expense">0 บาท</b>
+</div>
+
+<div class="status-card">
+<h4>📈 กำไรสุทธิ</h4>
+<b id="profit">0 บาท</b>
+</div>
+
+</div>
 
 <table>
 
 <thead>
 
+tb.innerHTML += `
 <tr>
-<th>วันที่</th>
-<th>ประเภท</th>
-<th>รายการ</th>
-<th>จำนวนเงิน</th>
+<td>${r.date}</td>
+<td>${r.type==="income"?"รายรับ":"รายจ่าย"}</td>
+<td>${r.name}</td>
+<td>${r.amount.toLocaleString()}</td>
+<td>
+<button onclick="deleteItem(${data.indexOf(r)})"
+style="
+background:#ef4444;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:8px;
+">
+ลบ
+</button>
+</td>
 </tr>
+tb.innerHTML += `
+<tr>
+<td>${r.date}</td>
+<td>${r.type==="income"?"รายรับ":"รายจ่าย"}</td>
+<td>${r.name}</td>
+<td>${r.amount.toLocaleString()}</td>
+<td>
+<button onclick="deleteItem(${data.indexOf(r)})"
+style="
+background:#ef4444;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:8px;
+">
+ลบ
+</button>
+</td>
+</tr>
+<tr>
+<td>${r.date}</td>
+<td>${r.type==="income"?"รายรับ":"รายจ่าย"}</td>
+<td>${r.name}</td>
+<td>${r.amount.toLocaleString()}</td>
+<td>
+<button onclick="deleteItem(${data.indexOf(r)})"
+style="
+background:#ef4444;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:8px;
+">
+ลบ
+</button>
+</td>
+</tr>
+`;
 
 </thead>
 
@@ -760,6 +828,16 @@ document.getElementById("profit")
 (income-expense).toLocaleString()+" บาท";
 
 }
+function deleteItem(index){
+
+if(confirm("ลบรายการนี้ ?")){
+
+data.splice(index,1);
+
+save();
+
+}
+
 
 render();
 
