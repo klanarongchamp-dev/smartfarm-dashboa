@@ -54,24 +54,14 @@ padding:15px;
 }
 
 .header{
-background:linear-gradient(135deg,#14532d,#22c55e);
-padding:25px;
-text-align:center;
-color:white;
-border-radius:0 0 25px 25px;
-box-shadow:var(--shadow);
+padding:20px;
+border-radius:0 0 35px 35px;
 }
 
 .logo{
-width:100px;
-height:100px;
-border-radius:50%;
-background:white;
-padding:5px;
-object-fit:cover;
-margin-bottom:10px;
+width:90px;
+height:90px;
 }
-
 .card{
 background:var(--card);
 padding:20px;
@@ -82,26 +72,43 @@ box-shadow:var(--shadow);
 
 .status-grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-gap:12px;
-margin-bottom:15px;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+margin-bottom:20px;
 }
 
 .status-card{
-background:white;
-padding:15px;
-border-radius:18px;
+background:#fff;
+border-radius:24px;
+padding:20px;
 text-align:center;
-box-shadow:var(--shadow);
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+min-height:140px;
+
+display:flex;
+flex-direction:column;
+justify-content:center;
 }
 
 .status-card h4{
-font-size:14px;
-margin-bottom:8px;
+font-size:18px;
+margin-bottom:12px;
+font-weight:600;
+color:#444;
 }
 
 .status-card b{
-font-size:22px;
+font-size:42px;
+font-weight:700;
+color:#111;
+}
+
+.card{
+background:#fff;
+border-radius:28px;
+padding:24px;
+margin-bottom:20px;
+box-shadow:0 5px 18px rgba(0,0,0,.08);
 }
 
 .btn{
@@ -280,19 +287,26 @@ OFF
 </div>
  <div class="status-grid">
 
-<div class="status-card">
+</div>class="status-card">
 <h4>🌡️ อุณหภูมิ</h4>
-<b id="temp">--</b>
+<b id="temp">25.4°C</b>
 </div>
 
 <div class="status-card">
-<h4>💦 ความชื้นอากาศ</h4>
-<b id="hum">--</b>
+<h4>💦 ความชื้น</h4>
+<b id="hum">98%</b>
 </div>
 
 <div class="status-card">
-<h4>🌦️ สภาพอากาศ</h4>
-<b id="weather">--</b>
+<h4>☁️ สภาพอากาศ</h4>
+<b id="weather">มีเมฆ</b>
+</div>
+
+<div class="status-card">
+<h4>🌬️ ลม</h4>
+<b id="wind">4.8</b>
+</div>
+
 </div>
 
 <div class="status-card">
