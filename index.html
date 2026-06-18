@@ -297,15 +297,22 @@ alt="สวนลุงนะ ฟาร์ม">
 <h4>⏰ เวลา</h4>
 <b id="rtc">--:--:--</b>
 </div>
-
+<div class="status-card">
+<h4>🌦️ อากาศ</h4>
+<b id="weather">--</b>
 </div>
 
-<div class="status-grid">
-<div class="status-card"><h4>🌡️ อุณหภูมิ</h4><b id="temp">--</b></div>
-<div class="status-card"><h4>💦 ความชื้น</h4><b id="hum">--</b></div>
-<div class="status-card"><h4>🌱 ความชื้นดิน</h4><b id="soil">--</b></div>
-<div class="status-card"><h4>☀️ แสง</h4><b id="light">--</b></div>
+<div class="status-card">
+<h4>🌧️ ฝน</h4>
+<b id="rain">--</b>
 </div>
+
+<div class="status-card">
+<h4>🌬️ ลม</h4>
+<b id="wind">--</b>
+</div>
+</div>
+
 
 <div class="card">
 
@@ -873,6 +880,63 @@ document.getElementById("profit")
 (income-expense).toLocaleString()+" บาท";
 
 }
+ // ================= WEATHER API =================
+
+async function loadWeather(){
+
+try{
+
+const res = await fetch(
+'https://api.open-meteo.com/v1/forecast?latitude=7.734&longitude=100.071&current=temperature_2m,relative_humidity_2m,rain,weather_code,wind_speed_10m'
+);
+
+const data = await res.json();
+
+document.getElementById('temp').innerHTML =
+data.current.temperature_2m + '°C';
+
+document.getElementById('hum').innerHTML =
+data.current.relative_humidity_2m + '%';
+
+document.getElementById('rain').innerHTML =
+data.current.rain + ' mm';
+
+document.getElementById('wind').innerHTML =
+data.current.wind_speed_10m + ' km/h';
+
+const code = data.current.weather_code;
+
+let weather='☀️ แจ่มใส';
+
+if(code>=0 && code<=1)
+weather='☀️ แจ่มใส';
+
+else if(code<=3)
+weather='⛅ มีเมฆ';
+
+else if(code<=67)
+weather='🌧️ ฝนตก';
+
+else if(code<=77)
+weather='🌫️ หมอก';
+
+else
+weather='⛈️ พายุ';
+
+document.getElementById('weather').innerHTML =
+weather;
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+loadWeather();
+
+setInterval(loadWeather,600000);
 
 renderFinance();
 
