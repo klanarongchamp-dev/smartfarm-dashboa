@@ -966,14 +966,17 @@ email,
 password
 );
 
-}catch(err){
+catch(err){
 
-console.error('Login error:', err);
-alert('เข้าสู่ระบบไม่สำเร็จ: ' + err.message);
+  console.log(err);
+
+  alert(
+    err.code +
+    "\n" +
+    err.message
+  );
 
 }
-
-};
 
 window.logout=()=>{
 
