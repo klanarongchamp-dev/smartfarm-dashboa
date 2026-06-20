@@ -1027,6 +1027,13 @@ rainChance >= 70
 
 client.publish('farm/pump','OFF');
 
+if(
+document.getElementById('autoPump')?.checked &&
+rainChance >= 70
+){
+
+client.publish('farm/pump','OFF');
+
 document.getElementById('pumpStatus').innerHTML='OFF';
 
 sendNotification(
