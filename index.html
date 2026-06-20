@@ -320,19 +320,6 @@ background:#22c55e;color:#fff;padding:15px;border-radius:18px;
 text-align:center;margin-bottom:15px;
 }
 
-
-.rain-watch{background:#f59e0b;color:white;padding:15px;border-radius:15px;text-align:center;margin-bottom:15px;}
-.auto-mode{display:block;padding:10px;background:#e0f2fe;border-radius:12px;margin-bottom:15px;}
-
-
-.card canvas{
- width:100% !important;
- max-height:260px !important;
-}
-.status-grid{
- align-items:stretch;
-}
-
 </style>
 </head>
 <body>
@@ -498,11 +485,6 @@ font-weight:bold;
 </div>
 
 <div class="status-card">
-<h4>☔ โอกาสฝน</h4>
-<b id="rainChance">--%</b>
-</div>
-
-<div class="status-card">
 
 <h4>🌬️ ลม</h4>
 
@@ -617,7 +599,6 @@ id="rtc">
 <h3>
 💧 ควบคุมปั๊มน้ำ
 </h3>
-<label class="auto-mode"><input type="checkbox" id="autoPump"> 🤖 Auto Pump</label>
 
 <button
 class="btn on"
@@ -735,9 +716,7 @@ onclick="saveNote()">
 </canvas>
 
 </div>
- <div class="card"><h3>☔ กราฟโอกาสฝนตก</h3><canvas id="rainChart" style="max-height:260px;"></canvas></div>
-
-<!-- ================= FINANCE SUMMARY ================= -->
+ <!-- ================= FINANCE SUMMARY ================= -->
 
 <div class="card">
 
@@ -974,10 +953,12 @@ document.getElementById(
 }
 
 });
- if(localStorage.getItem('darkMode')==='true'){document.body.classList.add('dark');}
-window.toggleDark=()=>{
-document.body.classList.toggle('dark');
-localStorage.setItem('darkMode',document.body.classList.contains('dark'));
+ window.toggleDark=()=>{
+
+document.body.classList.toggle(
+'dark'
+);
+
 };
  async function loadWeather(){
 
@@ -1014,6 +995,7 @@ document.getElementById(
 ).innerHTML=
 '🌤️';
 const rainChance=(data.hourly&&data.hourly.precipitation_probability)?data.hourly.precipitation_probability[0]:0;
+document.getElementById('rainChance').innerHTML=rainChance + '%';
 
 if(rainChance>=70){
 document.getElementById('rainAlert').innerHTML=`<div class="rain-warning">🌧️ แจ้งเตือนฝนตก<br>โอกาสฝนตก ${rainChance}%<br>แนะนำหยุดรดน้ำ</div>`;
@@ -1037,6 +1019,7 @@ data.current.temperature_2m
 updateHumChart(
 data.current.relative_humidity_2m
 );
+updateRainChart(rainChance);
 
 }
 
@@ -1108,13 +1091,21 @@ document.getElementById(
 });
 
 window.pumpOn=()=>{
-client.publish('farm/pump','ON');
-sendNotification('💧 ปั๊มน้ำ','เปิดปั๊มน้ำแล้ว');
+
+client.publish(
+'farm/pump',
+'ON'
+);
+
 };
 
 window.pumpOff=()=>{
-client.publish('farm/pump','OFF');
-sendNotification('💧 ปั๊มน้ำ','ปิดปั๊มน้ำแล้ว');
+
+client.publish(
+'farm/pump',
+'OFF'
+);
+
 };
  const plantDate=
 new Date('2026-05-25');
@@ -1224,9 +1215,8 @@ const rainLabels=[];
 const rainData=[];
 const rainChart=new Chart(document.getElementById('rainChart'),{
 type:'line',
-data:{labels:rainLabels,datasets:[{label:'Rain Chance %',data:rainData,borderWidth:4,fill:true}]}
+data:{labels:rainLabels,datasets:[{label:'Rain %',data:rainData,borderWidth:3}]}
 });
-
 function updateRainChart(v){
  rainLabels.push(new Date().toLocaleTimeString());
  rainData.push(v);
@@ -1235,6 +1225,7 @@ function updateRainChart(v){
 }
 
 let tasks =
+
 JSON.parse(
 localStorage.getItem('tasks') || '[]'
 );
@@ -1509,19 +1500,5 @@ if('Notification' in window){
 Notification.requestPermission();
 }
 </script>
-
-<script>
-function sendNotification(title,message){
- if(!("Notification" in window)) return;
- if(Notification.permission==="granted"){
-   new Notification(title,{body:message});
- }
-}
-
-if("Notification" in window){
- Notification.requestPermission();
-}
-</script>
-
 </body>
 </html>
