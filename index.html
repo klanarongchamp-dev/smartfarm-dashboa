@@ -477,11 +477,12 @@ font-weight:bold;
 <div class="status-card">
 
 <h4>🌧️ ฝน</h4>
+<b id="rain">--</b>
+</div>
 
-<b id="rain">
---
-</b>
-
+<div class="status-card">
+<h4>☔ โอกาสฝน</h4>
+<b id="rainChance">0%</b>
 </div>
 
 <div class="status-card">
@@ -716,7 +717,9 @@ onclick="saveNote()">
 </canvas>
 
 </div>
- <!-- ================= FINANCE SUMMARY ================= -->
+ <div class="card"><h3>☔ กราฟโอกาสฝนตก</h3><canvas id="rainChart"></canvas></div>
+
+<!-- ================= FINANCE SUMMARY ================= -->
 
 <div class="card">
 
