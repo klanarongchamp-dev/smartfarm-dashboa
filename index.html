@@ -597,14 +597,12 @@ id="rtc">
 
 <div class="card">
 
-<h3>
- <label style="display:block;margin-bottom:15px;">
+<h3>💧 ควบคุมปั๊มน้ำ</h3>
+
+<label style="display:block;margin-bottom:15px;">
 <input type="checkbox" id="autoPump">
 🤖 Auto Pump
 </label>
-💧 ควบคุมปั๊มน้ำ
-</h3>
-
 <button
 class="btn on"
 onclick="pumpOn()">
@@ -1018,14 +1016,15 @@ document.getElementById(
 'weather'
 ).innerHTML=
 '🌤️';
-const rainChance=(data.hourly&&data.hourly.precipitation_probability)?data.hourly.precipitation_probability[0]:0;
-document.getElementById('rainChance').innerHTML=rainChance + '%';
-if(
-document.getElementById('autoPump')?.checked &&
-rainChance >= 70
-){
+const rainChance =
+(data.hourly && data.hourly.precipitation_probability)
+? data.hourly.precipitation_probability[0]
+: 0;
 
-client.publish('farm/pump','OFF');
+document.getElementById('rainChance').innerHTML =
+rainChance + '%';
+
+/* Auto Pump */
 
 if(
 document.getElementById('autoPump')?.checked &&
@@ -1042,14 +1041,9 @@ sendNotification(
 );
 
 }
-if(rainChance >= 70){
 
-document.getElementById('rainAlert').innerHTML =
-`<div class="rain-warning">
-🌧️ แจ้งเตือนฝนตก<br>
-โอกาสฝนตก ${rainChance}%<br>
-แนะนำหยุดรดน้ำ
-</div>`;
+/* Rain Alert */
+
 if(rainChance >= 70){
 
 document.getElementById('rainAlert').innerHTML =
