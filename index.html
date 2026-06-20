@@ -310,6 +310,16 @@ font-size:16px;
 
 }
 
+
+.rain-warning{
+background:#ef4444;color:#fff;padding:18px;border-radius:18px;
+font-size:20px;font-weight:bold;text-align:center;margin-bottom:15px;
+}
+.rain-safe{
+background:#22c55e;color:#fff;padding:15px;border-radius:18px;
+text-align:center;margin-bottom:15px;
+}
+
 </style>
 </head>
 <body>
@@ -392,6 +402,7 @@ onclick="logout()">
 </div>
 
 <div class="container">
+<div id="rainAlert"></div>
 
 <!-- SUMMARY -->
 
@@ -953,7 +964,7 @@ document.body.classList.toggle(
 
 const res=
 await fetch(
-'https://api.open-meteo.com/v1/forecast?latitude=7.734&longitude=100.071&current=temperature_2m,relative_humidity_2m,rain,weather_code,wind_speed_10m'
+'https://api.open-meteo.com/v1/forecast?latitude=7.734&longitude=100.071&current=temperature_2m,relative_humidity_2m,rain,weather_code,wind_speed_10m&hourly=precipitation_probability'
 );
 
 const data=
@@ -983,6 +994,22 @@ document.getElementById(
 'weather'
 ).innerHTML=
 '🌤️';
+const rainChance=(data.hourly&&data.hourly.precipitation_probability)?data.hourly.precipitation_probability[0]:0;
+
+if(rainChance>=70){
+document.getElementById('rainAlert').innerHTML=`<div class="rain-warning">🌧️ แจ้งเตือนฝนตก<br>โอกาสฝนตก ${rainChance}%<br>แนะนำหยุดรดน้ำ</div>`;
+
+if('Notification' in window && Notification.permission==='granted'){
+new Notification('สวนลุงนะ ฟาร์ม',{body:`มีโอกาสฝนตก ${rainChance}%`});
+}
+
+if(document.getElementById('pumpStatus')?.innerHTML==='ON'){
+client.publish('farm/pump','OFF');
+}
+}else{
+document.getElementById('rainAlert').innerHTML=`<div class="rain-safe">☀️ สภาพอากาศปกติ</div>`;
+}
+
 
 updateTempChart(
 data.current.temperature_2m
@@ -1450,5 +1477,11 @@ financeData.length;
 renderFinance();
   </script>
 
+
+<script>
+if('Notification' in window){
+Notification.requestPermission();
+}
+</script>
 </body>
 </html>
