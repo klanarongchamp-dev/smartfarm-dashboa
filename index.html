@@ -999,7 +999,6 @@ document.getElementById(
 'dashboard'
 ).style.display='block';
 
-// ✅ FIXED: Use textContent instead of innerHTML to prevent XSS
 document.getElementById(
 'userEmail'
 ).textContent=
@@ -1093,6 +1092,230 @@ document.getElementById('temp').textContent = 'ข้อมูลไม่พร
 // Initialize weather on load
 loadWeather();
 setInterval(loadWeather, 300000); // Update every 5 minutes
+
+// ==================== MQTT CONNECTION ====================
+// ⚠️ CRITICAL SECURITY ISSUES TO FIX:
+// 1. MQTT credentials exposed in client-side code - move to backend proxy
+// 2. Consider using token-based authentication instead of hardcoded passwords
+// 3. Add certificate pinning for MQTT connection
+// 4. Implement connection retry logic with exponential backoff
+
+let mqttClient = null;
+let mqttReconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
+const RECONNECT_DELAY = 3000; // 3 seconds
+
+function initMQTT(){
+
+try{
+
+// ⚠️ TODO: Load MQTT config from backend for security
+mqttClient = mqtt.connect(
+'wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt',
+{
+username:'smartfarm',
+password:'Kla12345',
+reconnectPeriod: RECONNECT_DELAY,
+connectTimeout: 4000,
+clientId: 'web_' + Date.now(),
+clean: true
+}
+);
+
+mqttClient.on('connect', handleMQTTConnect);
+mqttClient.on('message', handleMQTTMessage);
+mqttClient.on('error', handleMQTTError);
+mqttClient.on('close', handleMQTTClose);
+
+}catch(err){
+console.error('MQTT initialization error:', err);
+}
+
+}
+
+function handleMQTTConnect(){
+
+console.log('MQTT connected');
+mqttReconnectAttempts = 0;
+
+// ✅ FIXED: Use textContent instead of innerHTML
+document.getElementById('nodeStatus').textContent = 'ONLINE';
+document.getElementById('nodeStatus').className = 'online';
+
+// Subscribe to topics
+const topics = [
+'farm/pump/status',
+'farm/time',
+'farm/soil',
+'farm/light'
+];
+
+topics.forEach(topic => {
+try{
+mqttClient.subscribe(topic, (err) => {
+if(err){
+console.error(`Failed to subscribe to ${topic}:`, err);
+}else{
+console.log(`Subscribed to ${topic}`);
+}
+});
+}catch(err){
+console.error(`Subscribe error for ${topic}:`, err);
+}
+});
+
+}
+
+function handleMQTTMessage(topic, message){
+
+try{
+
+const msg = message.toString().trim();
+
+// Input validation
+if(!msg || msg.length === 0){
+console.warn('Empty message received');
+return;
+}
+
+// ✅ FIXED: Validate and sanitize inputs, use textContent
+switch(topic){
+
+case 'farm/time':
+if(/^\d{2}:\d{2}:\d{2}$/.test(msg)){
+document.getElementById('rtc').textContent = msg;
+}else{
+console.warn('Invalid time format:', msg);
+}
+break;
+
+case 'farm/pump/status':
+const pumpStatus = msg.toUpperCase();
+if(['ON', 'OFF'].includes(pumpStatus)){
+document.getElementById('pumpStatus').textContent = pumpStatus;
+document.getElementById('pumpStatus').className = pumpStatus === 'ON' ? 'online' : 'offline';
+}else{
+console.warn('Invalid pump status:', msg);
+}
+break;
+
+case 'farm/soil':
+const soilValue = parseFloat(msg);
+if(!isNaN(soilValue) && soilValue >= 0 && soilValue <= 100){
+document.getElementById('soil').textContent = soilValue.toFixed(2) + '%';
+}else{
+console.warn('Invalid soil moisture value:', msg);
+}
+break;
+
+case 'farm/light':
+const lightValue = parseFloat(msg);
+if(!isNaN(lightValue) && lightValue >= 0){
+document.getElementById('light').textContent = lightValue.toFixed(0) + ' Lux';
+}else{
+console.warn('Invalid light value:', msg);
+}
+break;
+
+default:
+console.warn('Unknown topic:', topic);
+
+}
+
+}catch(err){
+console.error('MQTT message handling error:', err);
+}
+
+}
+
+function handleMQTTError(error){
+
+console.error('MQTT error:', error);
+document.getElementById('nodeStatus').textContent = 'ERROR';
+document.getElementById('nodeStatus').className = 'offline';
+
+}
+
+function handleMQTTClose(){
+
+console.log('MQTT disconnected');
+document.getElementById('nodeStatus').textContent = 'OFFLINE';
+document.getElementById('nodeStatus').className = 'offline';
+
+}
+
+// ✅ FIXED: Add try-catch and input validation
+window.pumpOn = () => {
+
+try{
+if(mqttClient && mqttClient.connected){
+mqttClient.publish('farm/pump', 'ON', (err) => {
+if(err){
+console.error('Failed to publish pump ON:', err);
+alert('ไม่สามารถเปิดปั๊มได้');
+}else{
+console.log('Pump ON command sent');
+}
+});
+}else{
+alert('ระบบไม่เชื่อมต่ออยู่');
+}
+}catch(err){
+console.error('Pump ON error:', err);
+}
+
+};
+
+window.pumpOff = () => {
+
+try{
+if(mqttClient && mqttClient.connected){
+mqttClient.publish('farm/pump', 'OFF', (err) => {
+if(err){
+console.error('Failed to publish pump OFF:', err);
+alert('ไม่สามารถปิดปั๊มได้');
+}else{
+console.log('Pump OFF command sent');
+}
+});
+}else{
+alert('ระบบไม่เชื่อมต่ออยู่');
+}
+}catch(err){
+console.error('Pump OFF error:', err);
+}
+
+};
+
+// ==================== PLANT AGE CALCULATION ====================
+const plantDate = new Date('2026-05-25');
+
+function updateAge(){
+
+try{
+const now = new Date();
+const diff = Math.floor(
+(now.getTime() - plantDate.getTime()) / 86400000
+);
+
+if(diff < 0){
+document.getElementById('age').textContent = '0 วัน';
+}else{
+document.getElementById('age').textContent = diff + ' วัน';
+}
+}catch(err){
+console.error('Age calculation error:', err);
+document.getElementById('age').textContent = 'ข้อมูลไม่พร้อม';
+}
+
+}
+
+// Update age on page load and every hour
+updateAge();
+setInterval(updateAge, 3600000); // Update every hour
+
+// Initialize MQTT connection
+initMQTT();
 
 </script>
 </body>
