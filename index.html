@@ -1108,21 +1108,13 @@ document.getElementById(
 });
 
 window.pumpOn=()=>{
-
-client.publish(
-'farm/pump',
-'ON'
-);
-
+client.publish('farm/pump','ON');
+sendNotification('💧 ปั๊มน้ำ','เปิดปั๊มน้ำแล้ว');
 };
 
 window.pumpOff=()=>{
-
-client.publish(
-'farm/pump',
-'OFF'
-);
-
+client.publish('farm/pump','OFF');
+sendNotification('💧 ปั๊มน้ำ','ปิดปั๊มน้ำแล้ว');
 };
  const plantDate=
 new Date('2026-05-25');
@@ -1227,7 +1219,22 @@ humData.shift();
 humChart.update();
 
 }
- let tasks =
+ 
+const rainLabels=[];
+const rainData=[];
+const rainChart=new Chart(document.getElementById('rainChart'),{
+type:'line',
+data:{labels:rainLabels,datasets:[{label:'Rain Chance %',data:rainData,borderWidth:4,fill:true}]}
+});
+
+function updateRainChart(v){
+ rainLabels.push(new Date().toLocaleTimeString());
+ rainData.push(v);
+ if(rainLabels.length>20){rainLabels.shift();rainData.shift();}
+ rainChart.update();
+}
+
+let tasks =
 JSON.parse(
 localStorage.getItem('tasks') || '[]'
 );
