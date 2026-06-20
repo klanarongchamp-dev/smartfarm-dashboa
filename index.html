@@ -1015,12 +1015,47 @@ document.getElementById(
 '🌤️';
 const rainChance=(data.hourly&&data.hourly.precipitation_probability)?data.hourly.precipitation_probability[0]:0;
 document.getElementById('rainChance').innerHTML=rainChance + '%';
+if(
+document.getElementById('autoPump')?.checked &&
+rainChance >= 70
+){
 
-if(rainChance>=70){
-document.getElementById('rainAlert').innerHTML=`<div class="rain-warning">🌧️ แจ้งเตือนฝนตก<br>โอกาสฝนตก ${rainChance}%<br>แนะนำหยุดรดน้ำ</div>`;
+client.publish('farm/pump','OFF');
 
-if('Notification' in window && Notification.permission==='granted'){
-new Notification('สวนลุงนะ ฟาร์ม',{body:`มีโอกาสฝนตก ${rainChance}%`});
+document.getElementById('pumpStatus').innerHTML='OFF';
+
+sendNotification(
+'🤖 Auto Pump',
+'ปิดปั๊มอัตโนมัติ เพราะมีโอกาสฝนตกสูง'
+);
+
+}
+if(rainChance >= 70){
+
+document.getElementById('rainAlert').innerHTML =
+`<div class="rain-warning">
+🌧️ แจ้งเตือนฝนตก<br>
+โอกาสฝนตก ${rainChance}%<br>
+แนะนำหยุดรดน้ำ
+</div>`;
+
+if(!rainAlertSent){
+
+sendNotification(
+'🌧️ แจ้งเตือนฝนตก',
+`โอกาสฝนตก ${rainChance}% แนะนำหยุดรดน้ำ`
+);
+
+rainAlertSent = true;
+
+}
+
+}else{
+
+rainAlertSent = false;
+
+document.getElementById('rainAlert').innerHTML = '';
+
 }
 
 if(document.getElementById('pumpStatus')?.innerHTML==='ON'){
