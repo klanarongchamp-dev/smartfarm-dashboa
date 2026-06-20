@@ -1148,6 +1148,7 @@ const topics = [
 'farm/time',
 'farm/soil',
 'farm/light'
+ 'farm/node/status'
 ];
 
 topics.forEach(topic => {
@@ -1216,7 +1217,18 @@ document.getElementById('light').textContent = lightValue.toFixed(0) + ' Lux';
 console.warn('Invalid light value:', msg);
 }
 break;
+case 'farm/node/status':
 
+document.getElementById('nodeStatus')
+.textContent = msg;
+
+document.getElementById('nodeStatus')
+.className =
+msg === 'ONLINE'
+? 'online'
+: 'offline';
+ }
+break;
 default:
 console.warn('Unknown topic:', topic);
 
@@ -1319,4 +1331,26 @@ initMQTT();
 
 </script>
 </body>
+ <script>
+if ('serviceWorker' in navigator) {
+
+  navigator.serviceWorker
+    .register('./service-worker.js')
+
+    .then((registration) => {
+      console.log(
+        '✅ SmartFarm PWA Ready',
+        registration
+      );
+    })
+
+    .catch((error) => {
+      console.log(
+        '❌ Service Worker Error',
+        error
+      );
+    });
+
+}
+ </script>
 </html>
