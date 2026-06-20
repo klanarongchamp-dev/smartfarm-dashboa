@@ -598,6 +598,10 @@ id="rtc">
 <div class="card">
 
 <h3>
+ <label style="display:block;margin-bottom:15px;">
+<input type="checkbox" id="autoPump">
+🤖 Auto Pump
+</label>
 💧 ควบคุมปั๊มน้ำ
 </h3>
 
@@ -979,6 +983,7 @@ document.body.classList.toggle(
 );
 
 };
+ let rainAlertSent = false;
  async function loadWeather(){
 
 const res=
@@ -1038,12 +1043,20 @@ document.getElementById('rainAlert').innerHTML =
 โอกาสฝนตก ${rainChance}%<br>
 แนะนำหยุดรดน้ำ
 </div>`;
+if(rainChance >= 70){
+
+document.getElementById('rainAlert').innerHTML =
+`<div class="rain-warning">
+🌧️ แจ้งเตือนฝนตก<br>
+โอกาสฝนตก ${rainChance}%<br>
+แนะนำหยุดรดน้ำ
+</div>`;
 
 if(!rainAlertSent){
 
 sendNotification(
 '🌧️ แจ้งเตือนฝนตก',
-`โอกาสฝนตก ${rainChance}% แนะนำหยุดรดน้ำ`
+`โอกาสฝนตก ${rainChance}%`
 );
 
 rainAlertSent = true;
@@ -1054,18 +1067,12 @@ rainAlertSent = true;
 
 rainAlertSent = false;
 
-document.getElementById('rainAlert').innerHTML = '';
+document.getElementById('rainAlert').innerHTML =
+`<div class="rain-safe">
+☀️ สภาพอากาศปกติ
+</div>`;
 
 }
-
-if(document.getElementById('pumpStatus')?.innerHTML==='ON'){
-client.publish('farm/pump','OFF');
-}
-}else{
-document.getElementById('rainAlert').innerHTML=`<div class="rain-safe">☀️ สภาพอากาศปกติ</div>`;
-}
-
-
 updateTempChart(
 data.current.temperature_2m
 );
