@@ -324,6 +324,15 @@ text-align:center;margin-bottom:15px;
 .rain-watch{background:#f59e0b;color:white;padding:15px;border-radius:15px;text-align:center;margin-bottom:15px;}
 .auto-mode{display:block;padding:10px;background:#e0f2fe;border-radius:12px;margin-bottom:15px;}
 
+
+.card canvas{
+ width:100% !important;
+ max-height:260px !important;
+}
+.status-grid{
+ align-items:stretch;
+}
+
 </style>
 </head>
 <body>
@@ -726,7 +735,7 @@ onclick="saveNote()">
 </canvas>
 
 </div>
- <div class="card"><h3>☔ กราฟโอกาสฝนตก</h3><canvas id="rainChart"></canvas></div>
+ <div class="card"><h3>☔ กราฟโอกาสฝนตก</h3><canvas id="rainChart" style="max-height:260px;"></canvas></div>
 
 <!-- ================= FINANCE SUMMARY ================= -->
 
