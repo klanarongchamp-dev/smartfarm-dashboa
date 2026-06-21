@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#22c55e">
 
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
 <style>
 
@@ -83,8 +83,8 @@ box-shadow:0 5px 18px rgba(0,0,0,.08);
 .status-grid{
 display:grid;
 grid-template-columns:repeat(2,1fr);
-gap:10px;
-margin-bottom:20px;
+gap:8px;
+margin-bottom:8px;
 }
 
 
@@ -94,7 +94,7 @@ border-radius:12px;
 padding:10px;
 text-align:center;
 box-shadow:0 4px 15px rgba(0,0,0,.08);
-min-height:140px;
+min-height:90px;
 
 display:flex;
 flex-direction:column;
@@ -102,14 +102,14 @@ justify-content:center;
 }
 
 .status-card h4{
-font-size:18px;
-margin-bottom:12px;
+font-size:13px;
+margin-bottom:4px;
 font-weight:600;
 color:#444;
 }
 
 .status-card b{
-font-size:20px;
+font-size:22px;
 font-weight:700;
 color:#111;
 }
@@ -390,21 +390,7 @@ onclick="saveNote()">
 
 </div>
 
-<div class="card">
 
-<h3>📈 กราฟอุณหภูมิ</h3>
-
-<canvas id="tempChart"></canvas>
-
-</div>
-
-<div class="card">
-
-<h3>📈 กราฟความชื้น</h3>
-
-<canvas id="humChart"></canvas>
-
-</div>
 
 </div>
 
@@ -747,100 +733,7 @@ diff + ' วัน';
 
 updateAge();
 
-// ================= CHART =================
-
-const tempLabels=[];
-const tempData=[];
-
-const humLabels=[];
-const humData=[];
-
-const tempChart =
-new Chart(
-document.getElementById(
-'tempChart'
-),
-{
-type:'line',
-data:{
-labels:tempLabels,
-datasets:[{
-label:'Temperature',
-data:tempData,
-tension:.4,
-borderWidth:3
-}]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false
-}
-}
-);
-
-const humChart =
-new Chart(
-document.getElementById(
-'humChart'
-),
-{
-type:'line',
-data:{
-labels:humLabels,
-datasets:[{
-label:'Humidity',
-data:humData,
-tension:.4,
-borderWidth:3
-}]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false
-}
-}
-);
-
-function updateTempChart(v){
-
-tempLabels.push(
-new Date()
-.toLocaleTimeString()
-);
-
-tempData.push(v);
-
-if(tempLabels.length>20){
-
-tempLabels.shift();
-tempData.shift();
-
-}
-
-tempChart.update();
-
-}
-
-function updateHumChart(v){
-
-humLabels.push(
-new Date()
-.toLocaleTimeString()
-);
-
-humData.push(v);
-
-if(humLabels.length>20){
-
-humLabels.shift();
-humData.shift();
-
-}
-
-humChart.update();
-
-}
- // ================= FARM NOTE =================
+// ================= FARM NOTE =================
 
 document.getElementById(
 'note'
