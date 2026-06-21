@@ -719,22 +719,20 @@ document.getElementById('light')
 
 window.pumpOn=function(){
 
-client.publish(
-'farm/pump',
-'ON'
-);
+client.publish('farm/pump','ON');
+
+document.getElementById('pumpStatus')
+.innerHTML='ON';
 
 }
-
 window.pumpOff=function(){
 
-client.publish(
-'farm/pump',
-'OFF'
-);
+client.publish('farm/pump','OFF');
+
+document.getElementById('pumpStatus')
+.innerHTML='OFF';
 
 }
-
 // ================= อายุพืช =================
 
 const plantDate =
