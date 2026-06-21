@@ -1,33 +1,24 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1">
+<title>🌱 สวนลุงนะ ฟาร์ม Dashboard V5</title>
 
-<title>
-🌱 สวนลุงนะ ฟาร์ม V5 Pro MAX
-</title>
-
-<meta name="theme-color"
-content="#22c55e">
-
-<link rel="manifest"
-href="manifest.json">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#22c55e">
 
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
 :root{
 --green:#22c55e;
---green-dark:#14532d;
---bg:#eef5f0;
+--dark:#14532d;
+--bg:#f4f7f5;
 --card:#ffffff;
 --danger:#ef4444;
 --shadow:0 8px 24px rgba(0,0,0,.08);
@@ -42,7 +33,7 @@ font-family:'Segoe UI',sans-serif;
 
 body{
 background:var(--bg);
-color:#222;
+padding-bottom:40px;
 }
 
 body.dark{
@@ -56,18 +47,15 @@ background:#1e293b;
 color:white;
 }
 
-body.dark .card h3{
-color:#22c55e;
+.container{
+max-width:1200px;
+margin:auto;
+padding:15px;
 }
 
 .header{
-background:linear-gradient(
-135deg,
-#14532d,
-#22c55e
-);
-padding:40px 20px;
-padding-top:70px;
+background:linear-gradient(135deg,#14532d,#22c55e);
+padding:20px;
 text-align:center;
 color:white;
 border-radius:0 0 35px 35px;
@@ -75,85 +63,66 @@ box-shadow:var(--shadow);
 }
 
 .logo{
-width:120px;
-height:120px;
+width:90px;
+height:90px;
 border-radius:50%;
 background:white;
-padding:6px;
+padding:5px;
 object-fit:cover;
 margin-bottom:10px;
 }
 
-.container{
-max-width:1200px;
-margin:auto;
-padding:15px;
-}
-
 .card{
-background:var(--card);
-padding:24px;
+background:#fff;
 border-radius:28px;
+padding:24px;
 margin-bottom:20px;
-box-shadow:var(--shadow);
-animation:fadeUp .5s ease;
-}
-
-.card h3{
-margin-bottom:15px;
-color:var(--green-dark);
-}
+box-shadow:0 5px 18px rgba(0,0,0,.08);
 
 .status-grid{
 display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(180px,1fr));
+grid-template-columns:repeat(2,1fr);
 gap:15px;
 margin-bottom:20px;
 }
 
+
 .status-card{
-background:white;
+background:#fff;
 border-radius:24px;
 padding:20px;
 text-align:center;
-box-shadow:var(--shadow);
-min-height:150px;
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+min-height:140px;
 
 display:flex;
 flex-direction:column;
 justify-content:center;
-align-items:center;
-
-animation:fadeUp .5s ease;
 }
 
 .status-card h4{
 font-size:18px;
-margin-bottom:10px;
+margin-bottom:12px;
 font-weight:600;
+color:#444;
 }
 
 .status-card b{
-font-size:34px;
+font-size:42px;
 font-weight:700;
+color:#111;
 }
-
+ 
 .btn{
 width:100%;
-padding:16px;
+padding:14px;
 border:none;
-border-radius:16px;
-font-size:18px;
+border-radius:15px;
+font-size:16px;
 font-weight:bold;
 cursor:pointer;
 color:white;
-margin-top:10px;
-transition:.25s;
-}
-
-.btn:hover{
-transform:translateY(-2px);
+margin-bottom:10px;
 }
 
 .on{
@@ -168,78 +137,19 @@ input,
 textarea,
 select{
 width:100%;
-padding:14px;
+padding:12px;
+border-radius:12px;
 border:1px solid #ddd;
-border-radius:14px;
-font-size:16px;
 margin-bottom:10px;
 }
 
 textarea{
-height:130px;
-resize:none;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-}
-
-th,td{
-padding:12px;
-border:1px solid #ddd;
-text-align:center;
-}
-
-th{
-background:#22c55e;
-color:white;
+height:120px;
 }
 
 canvas{
-width:100%!important;
-height:280px!important;
-}
-
-.task-item{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:12px;
-background:#f8fafc;
-border-radius:12px;
-margin-top:10px;
-}
-
-.task-item button{
-background:#ef4444;
-color:white;
-border:none;
-padding:8px 12px;
-border-radius:10px;
-cursor:pointer;
-}
-
-.deleteBtn{
-background:#ef4444;
-color:white;
-border:none;
-padding:8px 12px;
-border-radius:10px;
-cursor:pointer;
-}
-
-#income{
-color:#16a34a;
-}
-
-#expense{
-color:#dc2626;
-}
-
-#profit{
-color:#2563eb;
-font-weight:700;
+max-width:100%;
+height:300px !important;
 }
 
 .online{
@@ -256,100 +166,48 @@ font-weight:bold;
 display:none;
 }
 
-.card:hover,
-.status-card:hover{
-transform:translateY(-4px);
-transition:.25s;
+#loginPage{
+max-width:450px;
+margin:50px auto;
 }
 
-@keyframes fadeUp{
-
-from{
-opacity:0;
-transform:translateY(20px);
+table{
+width:100%;
+border-collapse:collapse;
 }
 
-to{
-opacity:1;
-transform:translateY(0);
-}
-
-}
-
-::-webkit-scrollbar{
-width:8px;
-}
-
-::-webkit-scrollbar-thumb{
-background:#22c55e;
-border-radius:10px;
-}
-
-@media(max-width:768px){
-
-.header{
-padding-top:50px;
-}
-
-.logo{
-width:95px;
-height:95px;
-}
-
-.header h1{
-font-size:26px;
-}
-
-.status-card b{
-font-size:28px;
-}
-
-.btn{
-font-size:16px;
-}
-
-}
-
-
-.rain-warning{
-background:#ef4444;color:#fff;padding:18px;border-radius:18px;
-font-size:20px;font-weight:bold;text-align:center;margin-bottom:15px;
-}
-.rain-safe{
-background:#22c55e;color:#fff;padding:15px;border-radius:18px;
-text-align:center;margin-bottom:15px;
-}
-
-.center-content{
+th,td{
+border:1px solid #ddd;
+padding:10px;
 text-align:center;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
 }
 
-.checkbox-label{
-display:block;
-margin-bottom:15px;
+th{
+background:#22c55e;
+color:white;
+}
+
+.deleteBtn{
+background:#ef4444;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:8px;
+cursor:pointer;
 }
 
 </style>
-</head>
-<body>
 
-<!-- ================= LOGIN ================= -->
+</head>
+
+<body>
 
 <div id="loginPage">
 
-<div
-class="card"
-style="
-max-width:450px;
-margin:60px auto;
-">
+<div class="card">
 
 <h2 style="text-align:center;">
-🔒 เข้าสู่ระบบ Smart Farm
+🔒 เข้าสู่ระบบสวนลุงนะ
 </h2>
 
 <br>
@@ -357,29 +215,22 @@ margin:60px auto;
 <input
 type="email"
 id="email"
-placeholder="Email"
-aria-label="Email address">
+placeholder="Email">
 
 <input
 type="password"
 id="password"
-placeholder="Password"
-aria-label="Password">
+placeholder="Password">
 
 <button
 class="btn on"
-onclick="login()"
-aria-label="Login button">
-
+onclick="login()">
 เข้าสู่ระบบ
-
 </button>
 
 </div>
 
 </div>
-
-<!-- ================= DASHBOARD ================= -->
 
 <div id="dashboard">
 
@@ -387,263 +238,112 @@ aria-label="Login button">
 
 <img
 src="suanlungna_icon_512.png"
-class="logo"
-alt="สวนลุงนะ Logo">
+class="logo">
 
-<h1>
-🌱 สวนลุงนะ ฟาร์ม
-</h1>
+<h1>🌱 สวนลุงนะ ฟาร์ม</h1>
 
-<p>
-Smart Farm Dashboard V5 Pro MAX
-</p>
+<p>Smart Farm Dashboard V5</p>
 
 <br>
 
 <button
 class="btn on"
-onclick="toggleDark()"
-aria-label="Toggle dark mode">
-
+onclick="toggleDark()">
 🌙 Dark Mode
-
 </button>
 
 <button
 class="btn off"
-onclick="logout()"
-aria-label="Logout button">
-
+onclick="logout()">
 🚪 Logout
-
 </button>
 
 </div>
 
 <div class="container">
+
 <div id="rainAlert"></div>
-
-<!-- SUMMARY -->
-
-<div class="card">
-
-<div class="center-content">
-
-<h2>
-🌱 ยินดีต้อนรับ
-</h2>
-
-<p>
-Smart Farm Dashboard
-</p>
-
-<br>
-
-<div
-style="
-font-size:20px;
-font-weight:bold;
-">
-
-👨‍🌾
-
-<span id="userEmail">
-
--
-
-</span>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- STATUS -->
-
 <div class="status-grid">
 
 <div class="status-card">
+<h4>📡 NodeMCU</h4>
+<b id="nodeStatus"
+class="offline">
+OFFLINE
+</b>
+</div>
 
+<div class="status-card">
+<h4>💧 Pump</h4>
+<b id="pumpStatus">
+OFF
+</b>
+</div>
+
+<div class="status-card">
+<h4>⏰ เวลา</h4>
+<b id="rtc">
+--:--:--
+</b>
+</div>
+
+</div>
+<div class="status-grid">
+
+<div class="status-card">
 <h4>🌡️ อุณหภูมิ</h4>
-
-<b id="temp">
---
-</b>
-
+<b id="temp">--</b>
 </div>
 
 <div class="status-card">
-
-<h4>💦 ความชื้น</h4>
-
-<b id="hum">
---
-</b>
-
+<h4>💦 ความชื้นอากาศ</h4>
+<b id="hum">--</b>
 </div>
 
 <div class="status-card">
-
-<h4>🌤️ สภาพอากาศ</h4>
-
-<b id="weather">
---
-</b>
-
+<h4>🌦️ สภาพอากาศ</h4>
+<b id="weather">--</b>
 </div>
 
 <div class="status-card">
-
 <h4>🌧️ ฝน</h4>
 <b id="rain">--</b>
 </div>
 
 <div class="status-card">
-<h4>☔ โอกาสฝน</h4>
-<b id="rainChance">0%</b>
-</div>
-
-<div class="status-card">
-
 <h4>🌬️ ลม</h4>
-
-<b id="wind">
---
-</b>
-
+<b id="wind">--</b>
 </div>
 
 <div class="status-card">
-
-<h4>📡 ระบบ</h4>
-
-<div>
-
-Node :
-
-<span
-id="nodeStatus"
-class="offline">
-
-OFFLINE
-
-</span>
-
-</div>
-
-<br>
-
-<div>
-
-Pump :
-
-<span
-id="pumpStatus"
-class="offline">
-
-OFF
-
-</span>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- SENSOR -->
-
-<div class="card">
-
-<h3>
-🌱 เซ็นเซอร์ในสวน
-</h3>
-
-<div class="status-grid">
-
-<div class="status-card">
-
-<h4>
-🌾 ความชื้นดิน
-</h4>
-
-<b id="soil">
---
-</b>
-
+<h4>🌱 ความชื้นดิน</h4>
+<b id="soil">--</b>
 </div>
 
 <div class="status-card">
-
-<h4>
-☀️ แสง
-</h4>
-
-<b id="light">
---
-</b>
-
+<h4>☀️ แสง</h4>
+<b id="light">--</b>
 </div>
 
 </div>
-
-</div>
-
-<!-- CLOCK -->
 
 <div class="card">
 
-<h3>
-⏰ เวลาปัจจุบัน
-</h3>
+<h3>💧 ควบคุมปั๊มน้ำ<br><label><input type="checkbox" id="autoPump"> 🤖 Auto Pump</label></h3>
 
-<div class="center-content">
-
-<b
-style="
-font-size:35px;
-"
-id="rtc">
-
---:--:--
-
-</b>
-
-</div>
-
-</div>
-
-<!-- PUMP CONTROL -->
-
-<div class="card">
-
-<h3>💧 ควบคุมปั๊มน้ำ</h3>
-
-<label class="checkbox-label">
-<input type="checkbox" id="autoPump" aria-label="Auto pump toggle">
-🤖 Auto Pump
-</label>
 <button
 class="btn on"
-onclick="pumpOn()"
-aria-label="Turn on pump">
-
+onclick="pumpOn()">
 🟢 เปิดปั๊ม
-
 </button>
 
 <button
 class="btn off"
-onclick="pumpOff()"
-aria-label="Turn off pump">
-
+onclick="pumpOff()">
 🔴 ปิดปั๊ม
-
 </button>
 
 </div>
- <!-- ================= PLANT INFO ================= -->
 
 <div class="card">
 
@@ -652,27 +352,17 @@ aria-label="Turn off pump">
 <p>
 ชื่อพืช :
 <b>แตงกวา</b>
-</p>
-
 <br>
 
-<p>
 วันที่ปลูก :
 <b>25/05/2569</b>
-</p>
-
 <br>
 
-<p>
 อายุพืช :
-<b id="age">
-0 วัน
-</b>
+<b id="age">0 วัน</b>
 </p>
 
 </div>
-
-<!-- ================= TASK ================= -->
 
 <div class="card">
 
@@ -680,25 +370,17 @@ aria-label="Turn off pump">
 
 <input
 id="taskInput"
-placeholder="เพิ่มงานในสวน"
-aria-label="Add task input">
+placeholder="เพิ่มงานในสวน">
 
 <button
 class="btn on"
-onclick="addTask()"
-aria-label="Add task button">
-
-➕ เพิ่มงาน
-
+onclick="addTask()">
+เพิ่มงาน
 </button>
-
-<br><br>
 
 <div id="tasks"></div>
 
 </div>
-
-<!-- ================= NOTE ================= -->
 
 <div class="card">
 
@@ -706,131 +388,74 @@ aria-label="Add task button">
 
 <textarea
 id="note"
-placeholder="บันทึกเหตุการณ์ในสวน"
-aria-label="Farm notes">
+placeholder="บันทึกข้อมูล">
 </textarea>
 
 <button
 class="btn on"
-onclick="saveNote()"
-aria-label="Save note button">
-
-💾 บันทึก
-
+onclick="saveNote()">
+บันทึก
 </button>
 
 </div>
 
-<!-- ================= TEMP CHART ================= -->
-
 <div class="card">
 
-<h3>
-📈 กราฟอุณหภูมิ
-</h3>
+<h3>📈 กราฟอุณหภูมิ</h3>
 
-<canvas id="tempChart">
-</canvas>
+<canvas id="tempChart"></canvas>
 
 </div>
 
-<!-- ================= HUM CHART ================= -->
-
 <div class="card">
 
-<h3>
-📊 กราฟความชื้น
-</h3>
+<h3>📈 กราฟความชื้น</h3>
 
-<canvas id="humChart">
-</canvas>
+<canvas id="humChart"></canvas>
 
 </div>
- <div class="card"><h3>☔ กราฟโอกาสฝนตก</h3><canvas id="rainChart"></canvas></div>
-
-<!-- ================= FINANCE SUMMARY ================= -->
 
 <div class="card">
 
-<h3>
-💰 สรุปการเงินฟาร์ม
-</h3>
+<h3>💰 สรุปการเงิน</h3>
 
 <div class="status-grid">
 
 <div class="status-card">
-
-<h4>
-💵 รายรับ
-</h4>
-
-<b id="income">
-0 บาท
-</b>
-
+<h4>💵 รายรับ</h4>
+<b id="income">0 บาท</b>
 </div>
 
 <div class="status-card">
-
-<h4>
-💸 รายจ่าย
-</h4>
-
-<b id="expense">
-0 บาท
-</b>
-
+<h4>💸 รายจ่าย</h4>
+<b id="expense">0 บาท</b>
 </div>
 
 <div class="status-card">
-
-<h4>
-📈 กำไร
-</h4>
-
-<b id="profit">
-0 บาท
-</b>
-
-</div>
-
-<div class="status-card">
-
-<h4>
-📊 จำนวนรายการ
-</h4>
-
-<b id="totalItem">
-0
-</b>
-
+<h4>📈 กำไร</h4>
+<b id="profit">0 บาท</b>
 </div>
 
 </div>
 
 </div>
-
-<!-- ================= ADD FINANCE ================= -->
 
 <div class="card">
 
-<h3>
-➕ เพิ่มรายการ
-</h3>
+<h3>➕ เพิ่มรายการการเงิน</h3>
 
 <input
 type="date"
-id="date"
-aria-label="Transaction date">
+id="date">
 
-<select id="type" aria-label="Transaction type">
+<select id="type">
 
 <option value="income">
-💵 รายรับ
+รายรับ
 </option>
 
 <option value="expense">
-💸 รายจ่าย
+รายจ่าย
 </option>
 
 </select>
@@ -838,48 +463,35 @@ aria-label="Transaction date">
 <input
 type="text"
 id="name"
-placeholder="ชื่อรายการ"
-aria-label="Item name">
+placeholder="ชื่อรายการ">
 
 <input
 type="number"
 id="amount"
-placeholder="จำนวนเงิน"
-aria-label="Amount">
+placeholder="จำนวนเงิน">
 
 <button
 class="btn on"
-onclick="addItem()"
-aria-label="Save transaction button">
-
+onclick="addItem()">
 💾 บันทึกรายการ
-
 </button>
 
 </div>
 
-<!-- ================= TABLE ================= -->
-
 <div class="card">
 
-<h3>
-📋 รายการทั้งหมด
-</h3>
-
-<div style="overflow:auto;">
+<h3>📋 รายการทั้งหมด</h3>
 
 <table>
 
 <thead>
 
 <tr>
-
 <th>วันที่</th>
 <th>ประเภท</th>
 <th>รายการ</th>
 <th>จำนวนเงิน</th>
 <th>ลบ</th>
-
 </tr>
 
 </thead>
@@ -891,12 +503,16 @@ aria-label="Save transaction button">
 </table>
 
 </div>
+</div> <!-- container -->
+</div> <!-- dashboard -->
 
-</div>
 <script type="module">
+
+// ================= FIREBASE =================
 
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
 import {
 getAuth,
 signInWithEmailAndPassword,
@@ -905,54 +521,44 @@ onAuthStateChanged
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-function sendNotification(title,message){
-
-if(!("Notification" in window)) return;
-
-if(Notification.permission==="granted"){
-
-new Notification(title,{
-body:message,
-icon:"suanlungna_icon_512.png"
-});
-
-}
-
-}
-
-// ⚠️ SECURITY WARNING: Firebase config should be loaded from environment variables or backend
-// For production, move this to a secure backend or use environment variables
-cons
 const firebaseConfig = {
-    apiKey: "AIzaSyC9_JyCdoNkIqNlDv5BZ40HuWu07SLL5pg",
-    authDomain: "smartfarm-b8d8c.firebaseapp.com",
-    projectId: "smartfarm-b8d8c",
-    storageBucket: "smartfarm-b8d8c.firebasestorage.app",
-    messagingSenderId: "504807869428",
-    appId: "1:504807869428:web:5ad5eacd24770bf70107a1",
-    measurementId: "G-8LT2KE1PHY"
-  };
 
-const app=
+apiKey:
+"AIzaSyAimbgBcmqy_2eyHTwuflNKfThHbzssnoM",
+
+authDomain:
+"sonlungna-smartfarm.firebaseapp.com",
+
+projectId:
+"sonlungna-smartfarm",
+
+storageBucket:
+"sonlungna-smartfarm.firebasestorage.app",
+
+messagingSenderId:
+"348111875750",
+
+appId:
+"1:348111875750:web:5cd85cf82fd88d6a830e67"
+
+};
+
+const app =
 initializeApp(firebaseConfig);
 
-const auth=
+const auth =
 getAuth(app);
 
-window.login=async()=>{
+window.login =
+async function(){
 
-try{
-
-const email=
+const email =
 document.getElementById('email').value;
 
-const password=
+const password =
 document.getElementById('password').value;
 
-if(!email || !password){
-alert('กรุณากรอกอีเมลและรหัสผ่าน');
-return;
-}
+try{
 
 await signInWithEmailAndPassword(
 auth,
@@ -960,27 +566,20 @@ email,
 password
 );
 
-catch(err){
-
-  console.log(err);
-
-  alert(
-    err.code +
-    "\n" +
-    err.message
-  );
-
-}
-
-window.logout=()=>{
-
-try{
-signOut(auth);
 }catch(err){
-console.error('Logout error:', err);
+
+alert(err.message);
+
 }
 
-};
+}
+
+window.logout =
+function(){
+
+signOut(auth);
+
+}
 
 onAuthStateChanged(
 auth,
@@ -996,10 +595,12 @@ document.getElementById(
 'dashboard'
 ).style.display='block';
 
-document.getElementById(
-'userEmail'
-).textContent=
-user.email;
+setTimeout(()=>{
+
+tempChart.resize();
+humChart.resize();
+
+},500);
 
 }else{
 
@@ -1013,341 +614,571 @@ document.getElementById(
 
 }
 
-});
+}
+);
 
- window.toggleDark=()=>{
+// ================= DARK MODE =================
 
-try{
+window.toggleDark =
+function(){
+
 document.body.classList.toggle(
 'dark'
 );
-}catch(err){
-console.error('Toggle dark mode error:', err);
+
 }
 
-};
+// ================= WEATHER API =================
 
- let rainAlertSent = false;
- async function loadWeather(){
+async function loadWeather(){
 
 try{
 
-const res=
+const res =
 await fetch(
 'https://api.open-meteo.com/v1/forecast?latitude=7.734&longitude=100.071&current=temperature_2m,relative_humidity_2m,rain,weather_code,wind_speed_10m&hourly=precipitation_probability'
 );
 
-if(!res.ok){
-throw new Error(`Weather API error: ${res.status}`);
-}
-
-const data=
+const data =
 await res.json();
 
-document.getElementById(
-'temp'
-).textContent=
-data.current.temperature_2m+'°C';
+document.getElementById('temp')
+.innerHTML =
+data.current.temperature_2m +
+'°C';
 
-document.getElementById(
-'hum'
-).textContent=
-data.current.relative_humidity_2m+'%';
+document.getElementById('hum')
+.innerHTML =
+data.current.relative_humidity_2m +
+'%';
 
-document.getElementById(
-'wind'
-).textContent=
-data.current.wind_speed_10m+'km/h';
+document.getElementById('rain')
+.innerHTML =
+data.current.rain +
+' mm';
 
-document.getElementById(
-'rain'
-).textContent=
-(data.current.rain || 0)+'mm';
+document.getElementById('wind')
+.innerHTML =
+data.current.wind_speed_10m +
+' km/h';
 
-const rainChance = data.hourly.precipitation_probability[0] || 0;
-document.getElementById(
-'rainChance'
-).textContent=
-rainChance+'%';
+const code =
+data.current.weather_code;
 
-if(rainChance > 70 && !rainAlertSent){
-rainAlertSent = true;
-sendNotification('⚠️ คำเตือน', 'มีแนวโน้มฝนตกมากกว่า 70%');
-document.getElementById('rainAlert').innerHTML = '<div class="rain-warning">⚠️ แนวโน้มฝนตกสูง (' + rainChance + '%)</div>';
-}else if(rainChance <= 70 && rainAlertSent){
-rainAlertSent = false;
-document.getElementById('rainAlert').innerHTML = '<div class="rain-safe">✅ ปลอดภัย - โอกาสฝนตกต่ำ (' + rainChance + '%)</div>';
+let weather =
+'☀️ แจ่มใส';
+
+if(code<=1)
+weather='☀️ แจ่มใส';
+
+else if(code<=3)
+weather='⛅ มีเมฆ';
+
+else if(code<=67)
+weather='🌧️ ฝนตก';
+
+else if(code<=77)
+weather='🌫️ หมอก';
+
+else
+weather='⛈️ พายุ';
+
+document.getElementById('weather')
+.innerHTML =
+weather;
+
+const rainChance=(data.hourly&&data.hourly.precipitation_probability)?data.hourly.precipitation_probability[0]:0;
+document.getElementById('rainChance').innerHTML=rainChance+'%';
+
+if(document.getElementById('autoPump')?.checked && rainChance>=70){
+client.publish('farm/pump','OFF');
+document.getElementById('pumpStatus').innerHTML='OFF';
+sendNotification('🤖 Auto Pump','ปิดปั๊มอัตโนมัติ เพราะมีโอกาสฝนตกสูง');
 }
+
+if(rainChance>=70){
+document.getElementById('rainAlert').innerHTML='<div class="rain-warning">🌧️ โอกาสฝนตก '+rainChance+'% แนะนำหยุดรดน้ำ</div>';
+sendNotification('🌧️ แจ้งเตือนฝนตก','โอกาสฝนตก '+rainChance+'%');
+}else{
+document.getElementById('rainAlert').innerHTML='';
+}
+
+updateTempChart(
+data.current.temperature_2m
+);
+
+updateHumChart(
+data.current.relative_humidity_2m
+);
 
 }catch(err){
-console.error('Weather loading error:', err);
-document.getElementById('temp').textContent = 'ข้อมูลไม่พร้อม';
-}
+
+console.log(err);
 
 }
 
-// Initialize weather on load
+}
+
 loadWeather();
-setInterval(loadWeather, 300000); // Update every 5 minutes
 
-// ==================== MQTT CONNECTION ====================
-// ⚠️ CRITICAL SECURITY ISSUES TO FIX:
-// 1. MQTT credentials exposed in client-side code - move to backend proxy
-// 2. Consider using token-based authentication instead of hardcoded passwords
-// 3. Add certificate pinning for MQTT connection
-// 4. Implement connection retry logic with exponential backoff
+setInterval(
+loadWeather,
+600000
+);
+ // ================= MQTT =================
 
-let mqttClient = null;
-let mqttReconnectAttempts = 0;
-const MAX_RECONNECT_ATTEMPTS = 5;
-const RECONNECT_DELAY = 3000; // 3 seconds
-
-function initMQTT(){
-
-try{
-
-// ⚠️ TODO: Load MQTT config from backend for security
-mqttClient = mqtt.connect(
+const client = mqtt.connect(
 'wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt',
 {
 username:'smartfarm',
 password:'Kla12345',
-reconnectPeriod: RECONNECT_DELAY,
-connectTimeout: 4000,
-clientId: 'web_' + Date.now(),
-clean: true
+reconnectPeriod:3000
 }
 );
 
-mqttClient.on('connect', handleMQTTConnect);
-mqttClient.on('message', handleMQTTMessage);
-mqttClient.on('error', handleMQTTError);
-mqttClient.on('close', handleMQTTClose);
-
-}catch(err){
-console.error('MQTT initialization error:', err);
-}
-
-}
-
-function handleMQTTConnect(){
-
-console.log('MQTT connected');
-mqttReconnectAttempts = 0;
-
-// ✅ FIXED: Use textContent instead of innerHTML
-document.getElementById('nodeStatus').textContent = 'ONLINE';
-document.getElementById('nodeStatus').className = 'online';
-
-// Subscribe to topics
-const topics = [
-'farm/pump/status',
-'farm/time',
-'farm/soil',
-'farm/light'
- 'farm/node/status'
-];
-
-topics.forEach(topic => {
-try{
-mqttClient.subscribe(topic, (err) => {
-if(err){
-console.error(`Failed to subscribe to ${topic}:`, err);
-}else{
-console.log(`Subscribed to ${topic}`);
-}
-});
-}catch(err){
-console.error(`Subscribe error for ${topic}:`, err);
-}
-});
-
-}
-
-function handleMQTTMessage(topic, message){
-
-try{
-
-const msg = message.toString().trim();
-
-// Input validation
-if(!msg || msg.length === 0){
-console.warn('Empty message received');
-return;
-}
-
-// ✅ FIXED: Validate and sanitize inputs, use textContent
-switch(topic){
-
-case 'farm/time':
-if(/^\d{2}:\d{2}:\d{2}$/.test(msg)){
-document.getElementById('rtc').textContent = msg;
-}else{
-console.warn('Invalid time format:', msg);
-}
-break;
-
-case 'farm/pump/status':
-const pumpStatus = msg.toUpperCase();
-if(['ON', 'OFF'].includes(pumpStatus)){
-document.getElementById('pumpStatus').textContent = pumpStatus;
-document.getElementById('pumpStatus').className = pumpStatus === 'ON' ? 'online' : 'offline';
-}else{
-console.warn('Invalid pump status:', msg);
-}
-break;
-
-case 'farm/soil':
-const soilValue = parseFloat(msg);
-if(!isNaN(soilValue) && soilValue >= 0 && soilValue <= 100){
-document.getElementById('soil').textContent = soilValue.toFixed(2) + '%';
-}else{
-console.warn('Invalid soil moisture value:', msg);
-}
-break;
-
-case 'farm/light':
-const lightValue = parseFloat(msg);
-if(!isNaN(lightValue) && lightValue >= 0){
-document.getElementById('light').textContent = lightValue.toFixed(0) + ' Lux';
-}else{
-console.warn('Invalid light value:', msg);
-}
-break;
-case 'farm/node/status':
+client.on('connect',()=>{
 
 document.getElementById('nodeStatus')
-.textContent = msg;
+.innerHTML='ONLINE';
 
 document.getElementById('nodeStatus')
-.className =
-msg === 'ONLINE'
-? 'online'
-: 'offline';
- }
-break;
-default:
-console.warn('Unknown topic:', topic);
+.className='online';
 
-}
+client.subscribe('farm/pump/status');
+client.subscribe('farm/node/status');
+client.subscribe('farm/time');
+client.subscribe('farm/soil');
+client.subscribe('farm/light');
 
-}catch(err){
-console.error('MQTT message handling error:', err);
-}
-
-}
-
-function handleMQTTError(error){
-
-console.error('MQTT error:', error);
-document.getElementById('nodeStatus').textContent = 'ERROR';
-document.getElementById('nodeStatus').className = 'offline';
-
-}
-
-function handleMQTTClose(){
-
-console.log('MQTT disconnected');
-document.getElementById('nodeStatus').textContent = 'OFFLINE';
-document.getElementById('nodeStatus').className = 'offline';
-
-}
-
-// ✅ FIXED: Add try-catch and input validation
-window.pumpOn = () => {
-
-try{
-if(mqttClient && mqttClient.connected){
-mqttClient.publish('farm/pump', 'ON', (err) => {
-if(err){
-console.error('Failed to publish pump ON:', err);
-alert('ไม่สามารถเปิดปั๊มได้');
-}else{
-console.log('Pump ON command sent');
-}
 });
-}else{
-alert('ระบบไม่เชื่อมต่ออยู่');
-}
-}catch(err){
-console.error('Pump ON error:', err);
+
+client.on('close',offline);
+client.on('error',offline);
+
+function offline(){
+
+document.getElementById('nodeStatus')
+.innerHTML='OFFLINE';
+
+document.getElementById('nodeStatus')
+.className='offline';
+
 }
 
-};
+client.on('message',(topic,message)=>{
 
-window.pumpOff = () => {
+const msg =
+message.toString();
 
-try{
-if(mqttClient && mqttClient.connected){
-mqttClient.publish('farm/pump', 'OFF', (err) => {
-if(err){
-console.error('Failed to publish pump OFF:', err);
-alert('ไม่สามารถปิดปั๊มได้');
-}else{
-console.log('Pump OFF command sent');
-}
+if(topic==='farm/pump/status')
+document.getElementById('pumpStatus')
+.innerHTML=msg;
+
+if(topic==='farm/node/status')
+document.getElementById('nodeStatus')
+.innerHTML=msg;
+
+if(topic==='farm/time')
+document.getElementById('rtc')
+.innerHTML=msg;
+
+if(topic==='farm/soil')
+document.getElementById('soil')
+.innerHTML=msg+'%';
+
+if(topic==='farm/light')
+document.getElementById('light')
+.innerHTML=msg;
+
 });
-}else{
-alert('ระบบไม่เชื่อมต่ออยู่');
-}
-}catch(err){
-console.error('Pump OFF error:', err);
+
+window.pumpOn=function(){
+
+client.publish(
+'farm/pump',
+'ON'
+);
+
 }
 
-};
+window.pumpOff=function(){
 
-// ==================== PLANT AGE CALCULATION ====================
-const plantDate = new Date('2026-05-25');
+client.publish(
+'farm/pump',
+'OFF'
+);
+
+}
+
+// ================= อายุพืช =================
+
+const plantDate =
+new Date('2026-05-25');
 
 function updateAge(){
 
-try{
-const now = new Date();
-const diff = Math.floor(
-(now.getTime() - plantDate.getTime()) / 86400000
+const diff =
+Math.floor(
+(Date.now() -
+plantDate.getTime())
+/86400000
 );
 
-if(diff < 0){
-document.getElementById('age').textContent = '0 วัน';
-}else{
-document.getElementById('age').textContent = diff + ' วัน';
-}
-}catch(err){
-console.error('Age calculation error:', err);
-document.getElementById('age').textContent = 'ข้อมูลไม่พร้อม';
-}
+document.getElementById('age')
+.innerHTML =
+diff + ' วัน';
 
 }
 
-// Update age on page load and every hour
 updateAge();
-setInterval(updateAge, 3600000); // Update every hour
 
-// Initialize MQTT connection
-initMQTT();
+// ================= CHART =================
+
+const tempLabels=[];
+const tempData=[];
+
+const humLabels=[];
+const humData=[];
+
+const tempChart =
+new Chart(
+document.getElementById(
+'tempChart'
+),
+{
+type:'line',
+data:{
+labels:tempLabels,
+datasets:[{
+label:'Temperature',
+data:tempData,
+tension:.4,
+borderWidth:3
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+}
+);
+
+const humChart =
+new Chart(
+document.getElementById(
+'humChart'
+),
+{
+type:'line',
+data:{
+labels:humLabels,
+datasets:[{
+label:'Humidity',
+data:humData,
+tension:.4,
+borderWidth:3
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+}
+);
+
+function updateTempChart(v){
+
+tempLabels.push(
+new Date()
+.toLocaleTimeString()
+);
+
+tempData.push(v);
+
+if(tempLabels.length>20){
+
+tempLabels.shift();
+tempData.shift();
+
+}
+
+tempChart.update();
+
+}
+
+function updateHumChart(v){
+
+humLabels.push(
+new Date()
+.toLocaleTimeString()
+);
+
+humData.push(v);
+
+if(humLabels.length>20){
+
+humLabels.shift();
+humData.shift();
+
+}
+
+humChart.update();
+
+}
+ // ================= งานประจำวัน =================
+
+let tasks =
+JSON.parse(
+localStorage.getItem('tasks')
+|| '[]'
+);
+
+function renderTasks(){
+
+const el =
+document.getElementById(
+'tasks'
+);
+
+el.innerHTML='';
+
+tasks.forEach((t,i)=>{
+
+el.innerHTML += `
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px;
+border-bottom:1px solid #eee;
+">
+
+<span>${t}</span>
+
+<button
+class="deleteBtn"
+onclick="delTask(${i})">
+ลบ
+</button>
+
+</div>
+`;
+
+});
+
+localStorage.setItem(
+'tasks',
+JSON.stringify(tasks)
+);
+
+}
+
+window.addTask =
+function(){
+
+const txt =
+document.getElementById(
+'taskInput'
+).value;
+
+if(txt.trim()){
+
+tasks.push(txt);
+
+renderTasks();
+
+document.getElementById(
+'taskInput'
+).value='';
+
+}
+
+}
+
+window.delTask =
+function(i){
+
+tasks.splice(i,1);
+
+renderTasks();
+
+}
+
+renderTasks();
+
+// ================= FARM NOTE =================
+
+document.getElementById(
+'note'
+).value =
+localStorage.getItem(
+'farmNote'
+) || '';
+
+window.saveNote =
+function(){
+
+localStorage.setItem(
+'farmNote',
+document.getElementById(
+'note'
+).value
+);
+
+alert(
+'บันทึกเรียบร้อย'
+);
+
+}
+
+// ================= รายรับรายจ่าย =================
+
+let financeData =
+JSON.parse(
+localStorage.getItem(
+'farmData'
+) || '[]'
+);
+
+function saveFinance(){
+
+localStorage.setItem(
+'farmData',
+JSON.stringify(
+financeData
+)
+);
+
+renderFinance();
+
+}
+
+window.addItem =
+function(){
+
+financeData.push({
+
+date:
+document.getElementById(
+'date'
+).value,
+
+type:
+document.getElementById(
+'type'
+).value,
+
+name:
+document.getElementById(
+'name'
+).value,
+
+amount:
+Number(
+document.getElementById(
+'amount'
+).value
+)
+
+});
+
+saveFinance();
+
+}
+
+window.deleteItem =
+function(index){
+
+financeData.splice(
+index,
+1
+);
+
+saveFinance();
+
+}
+
+function renderFinance(){
+
+let income=0;
+let expense=0;
+
+const tb =
+document.getElementById(
+'tb'
+);
+
+tb.innerHTML='';
+
+financeData.forEach(
+(r,index)=>{
+
+if(
+r.type==='income'
+)
+income += r.amount;
+else
+expense += r.amount;
+
+tb.innerHTML += `
+<tr>
+
+<td>${r.date}</td>
+
+<td>
+${r.type==='income'
+?'รายรับ'
+:'รายจ่าย'}
+</td>
+
+<td>${r.name}</td>
+
+<td>
+${r.amount.toLocaleString()}
+</td>
+
+<td>
+
+<button
+class="deleteBtn"
+onclick="deleteItem(${index})">
+
+ลบ
+
+</button>
+
+</td>
+
+</tr>
+`;
+
+});
+
+document.getElementById(
+'income'
+).innerHTML =
+income.toLocaleString()
++' บาท';
+
+document.getElementById(
+'expense'
+).innerHTML =
+expense.toLocaleString()
++' บาท';
+
+document.getElementById(
+'profit'
+).innerHTML =
+(
+income-expense
+).toLocaleString()
++' บาท';
+
+}
+
+renderFinance();
 
 </script>
+
 </body>
- <script>
-if ('serviceWorker' in navigator) {
-
-  navigator.serviceWorker
-    .register('./service-worker.js')
-
-    .then((registration) => {
-      console.log(
-        '✅ SmartFarm PWA Ready',
-        registration
-      );
-    })
-
-    .catch((error) => {
-      console.log(
-        '❌ Service Worker Error',
-        error
-      );
-    });
-
-}
- </script>
 </html>
