@@ -1,24 +1,33 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>🌱 สวนลุงนะ ฟาร์ม Dashboard V5</title>
+<meta name="viewport"
+content="width=device-width, initial-scale=1">
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#22c55e">
+<title>
+🌱 สวนลุงนะ ฟาร์ม V5 Pro MAX
+</title>
+
+<meta name="theme-color"
+content="#22c55e">
+
+<link rel="manifest"
+href="manifest.json">
 
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
 :root{
 --green:#22c55e;
---dark:#14532d;
---bg:#f4f7f5;
+--green-dark:#14532d;
+--bg:#eef5f0;
 --card:#ffffff;
 --danger:#ef4444;
 --shadow:0 8px 24px rgba(0,0,0,.08);
@@ -33,7 +42,7 @@ font-family:'Segoe UI',sans-serif;
 
 body{
 background:var(--bg);
-padding-bottom:40px;
+color:#222;
 }
 
 body.dark{
@@ -47,15 +56,18 @@ background:#1e293b;
 color:white;
 }
 
-.container{
-max-width:1200px;
-margin:auto;
-padding:15px;
+body.dark .card h3{
+color:#22c55e;
 }
 
 .header{
-background:linear-gradient(135deg,#14532d,#22c55e);
-padding:20px;
+background:linear-gradient(
+135deg,
+#14532d,
+#22c55e
+);
+padding:40px 20px;
+padding-top:70px;
 text-align:center;
 color:white;
 border-radius:0 0 35px 35px;
@@ -63,66 +75,85 @@ box-shadow:var(--shadow);
 }
 
 .logo{
-width:90px;
-height:90px;
+width:120px;
+height:120px;
 border-radius:50%;
 background:white;
-padding:5px;
+padding:6px;
 object-fit:cover;
 margin-bottom:10px;
 }
 
+.container{
+max-width:1200px;
+margin:auto;
+padding:15px;
+}
+
 .card{
-background:#fff;
-border-radius:28px;
+background:var(--card);
 padding:24px;
+border-radius:28px;
 margin-bottom:20px;
-box-shadow:0 5px 18px rgba(0,0,0,.08);
+box-shadow:var(--shadow);
+animation:fadeUp .5s ease;
+}
+
+.card h3{
+margin-bottom:15px;
+color:var(--green-dark);
+}
 
 .status-grid{
 display:grid;
-grid-template-columns:repeat(2,1fr);
+grid-template-columns:
+repeat(auto-fit,minmax(180px,1fr));
 gap:15px;
 margin-bottom:20px;
 }
 
-
 .status-card{
-background:#fff;
+background:white;
 border-radius:24px;
 padding:20px;
 text-align:center;
-box-shadow:0 4px 15px rgba(0,0,0,.08);
-min-height:140px;
+box-shadow:var(--shadow);
+min-height:150px;
 
 display:flex;
 flex-direction:column;
 justify-content:center;
+align-items:center;
+
+animation:fadeUp .5s ease;
 }
 
 .status-card h4{
 font-size:18px;
-margin-bottom:12px;
+margin-bottom:10px;
 font-weight:600;
-color:#444;
 }
 
 .status-card b{
-font-size:42px;
+font-size:34px;
 font-weight:700;
-color:#111;
 }
- 
+
 .btn{
 width:100%;
-padding:14px;
+padding:16px;
 border:none;
-border-radius:15px;
-font-size:16px;
+border-radius:16px;
+font-size:18px;
 font-weight:bold;
 cursor:pointer;
 color:white;
-margin-bottom:10px;
+margin-top:10px;
+transition:.25s;
+}
+
+.btn:hover{
+transform:translateY(-2px);
 }
 
 .on{
@@ -137,19 +168,78 @@ input,
 textarea,
 select{
 width:100%;
-padding:12px;
-border-radius:12px;
+padding:14px;
 border:1px solid #ddd;
+border-radius:14px;
+font-size:16px;
 margin-bottom:10px;
 }
 
 textarea{
-height:120px;
+height:130px;
+resize:none;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:12px;
+border:1px solid #ddd;
+text-align:center;
+}
+
+th{
+background:#22c55e;
+color:white;
 }
 
 canvas{
-max-width:100%;
-height:300px !important;
+width:100%!important;
+height:280px!important;
+}
+
+.task-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px;
+background:#f8fafc;
+border-radius:12px;
+margin-top:10px;
+}
+
+.task-item button{
+background:#ef4444;
+color:white;
+border:none;
+padding:8px 12px;
+border-radius:10px;
+cursor:pointer;
+}
+
+.deleteBtn{
+background:#ef4444;
+color:white;
+border:none;
+padding:8px 12px;
+border-radius:10px;
+cursor:pointer;
+}
+
+#income{
+color:#16a34a;
+}
+
+#expense{
+color:#dc2626;
+}
+
+#profit{
+color:#2563eb;
+font-weight:700;
 }
 
 .online{
@@ -166,48 +256,87 @@ font-weight:bold;
 display:none;
 }
 
-#loginPage{
-max-width:450px;
-margin:50px auto;
+.card:hover,
+.status-card:hover{
+transform:translateY(-4px);
+transition:.25s;
 }
 
-table{
-width:100%;
-border-collapse:collapse;
+@keyframes fadeUp{
+
+from{
+opacity:0;
+transform:translateY(20px);
 }
 
-th,td{
-border:1px solid #ddd;
-padding:10px;
-text-align:center;
+to{
+opacity:1;
+transform:translateY(0);
 }
 
-th{
+}
+
+::-webkit-scrollbar{
+width:8px;
+}
+
+::-webkit-scrollbar-thumb{
 background:#22c55e;
-color:white;
+border-radius:10px;
 }
 
-.deleteBtn{
-background:#ef4444;
-color:white;
-border:none;
-padding:6px 10px;
-border-radius:8px;
-cursor:pointer;
+@media(max-width:768px){
+
+.header{
+padding-top:50px;
+}
+
+.logo{
+width:95px;
+height:95px;
+}
+
+.header h1{
+font-size:26px;
+}
+
+.status-card b{
+font-size:28px;
+}
+
+.btn{
+font-size:16px;
+}
+
+}
+
+
+.rain-warning{
+background:#ef4444;color:#fff;padding:18px;border-radius:18px;
+font-size:20px;font-weight:bold;text-align:center;margin-bottom:15px;
+}
+.rain-safe{
+background:#22c55e;color:#fff;padding:15px;border-radius:18px;
+text-align:center;margin-bottom:15px;
 }
 
 </style>
-
 </head>
-
 <body>
+
+<!-- ================= LOGIN ================= -->
 
 <div id="loginPage">
 
-<div class="card">
+<div
+class="card"
+style="
+max-width:450px;
+margin:60px auto;
+">
 
 <h2 style="text-align:center;">
-🔒 เข้าสู่ระบบสวนลุงนะ
+🔒 เข้าสู่ระบบ Smart Farm
 </h2>
 
 <br>
@@ -225,12 +354,16 @@ placeholder="Password">
 <button
 class="btn on"
 onclick="login()">
+
 เข้าสู่ระบบ
+
 </button>
 
 </div>
 
 </div>
+
+<!-- ================= DASHBOARD ================= -->
 
 <div id="dashboard">
 
@@ -240,110 +373,254 @@ onclick="login()">
 src="suanlungna_icon_512.png"
 class="logo">
 
-<h1>🌱 สวนลุงนะ ฟาร์ม</h1>
+<h1>
+🌱 สวนลุงนะ ฟาร์ม
+</h1>
 
-<p>Smart Farm Dashboard V5</p>
+<p>
+Smart Farm Dashboard V5 Pro MAX
+</p>
 
 <br>
 
 <button
 class="btn on"
 onclick="toggleDark()">
+
 🌙 Dark Mode
+
 </button>
 
 <button
 class="btn off"
 onclick="logout()">
+
 🚪 Logout
+
 </button>
 
 </div>
 
 <div class="container">
-
 <div id="rainAlert"></div>
+
+<!-- SUMMARY -->
+
+<div class="card">
+
+<center>
+
+<h2>
+🌱 ยินดีต้อนรับ
+</h2>
+
+<p>
+Smart Farm Dashboard
+</p>
+
+<br>
+
+<div
+style="
+font-size:20px;
+font-weight:bold;
+">
+
+👨‍🌾
+
+<span id="userEmail">
+
+-
+
+</span>
+
+</div>
+
+</center>
+
+</div>
+
+<!-- STATUS -->
+
 <div class="status-grid">
 
 <div class="status-card">
-<h4>📡 NodeMCU</h4>
-<b id="nodeStatus"
-class="offline">
-OFFLINE
-</b>
-</div>
 
-<div class="status-card">
-<h4>💧 Pump</h4>
-<b id="pumpStatus">
-OFF
-</b>
-</div>
-
-<div class="status-card">
-<h4>⏰ เวลา</h4>
-<b id="rtc">
---:--:--
-</b>
-</div>
-
-</div>
-<div class="status-grid">
-
-<div class="status-card">
 <h4>🌡️ อุณหภูมิ</h4>
-<b id="temp">--</b>
+
+<b id="temp">
+--
+</b>
+
 </div>
 
 <div class="status-card">
-<h4>💦 ความชื้นอากาศ</h4>
-<b id="hum">--</b>
+
+<h4>💦 ความชื้น</h4>
+
+<b id="hum">
+--
+</b>
+
 </div>
 
 <div class="status-card">
-<h4>🌦️ สภาพอากาศ</h4>
-<b id="weather">--</b>
+
+<h4>🌤️ สภาพอากาศ</h4>
+
+<b id="weather">
+--
+</b>
+
 </div>
 
 <div class="status-card">
+
 <h4>🌧️ ฝน</h4>
 <b id="rain">--</b>
 </div>
 
 <div class="status-card">
+<h4>☔ โอกาสฝน</h4>
+<b id="rainChance">0%</b>
+</div>
+
+<div class="status-card">
+
 <h4>🌬️ ลม</h4>
-<b id="wind">--</b>
+
+<b id="wind">
+--
+</b>
+
 </div>
 
 <div class="status-card">
-<h4>🌱 ความชื้นดิน</h4>
-<b id="soil">--</b>
+
+<h4>📡 ระบบ</h4>
+
+<div>
+
+Node :
+
+<span
+id="nodeStatus">
+
+OFFLINE
+
+</span>
+
 </div>
 
-<div class="status-card">
-<h4>☀️ แสง</h4>
-<b id="light">--</b>
+<br>
+
+<div>
+
+Pump :
+
+<span
+id="pumpStatus">
+
+OFF
+
+</span>
+
 </div>
 
 </div>
+
+</div>
+
+<!-- SENSOR -->
 
 <div class="card">
 
-<h3>💧 ควบคุมปั๊มน้ำ<br><label><input type="checkbox" id="autoPump"> 🤖 Auto Pump</label></h3>
+<h3>
+🌱 เซ็นเซอร์ในสวน
+</h3>
 
+<div class="status-grid">
+
+<div class="status-card">
+
+<h4>
+🌾 ความชื้นดิน
+</h4>
+
+<b id="soil">
+--
+</b>
+
+</div>
+
+<div class="status-card">
+
+<h4>
+☀️ แสง
+</h4>
+
+<b id="light">
+--
+</b>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- CLOCK -->
+
+<div class="card">
+
+<h3>
+⏰ เวลาปัจจุบัน
+</h3>
+
+<center>
+
+<b
+style="
+font-size:35px;
+"
+id="rtc">
+
+--:--:--
+
+</b>
+
+</center>
+
+</div>
+
+<!-- PUMP CONTROL -->
+
+<div class="card">
+
+<h3>💧 ควบคุมปั๊มน้ำ</h3>
+
+<label style="display:block;margin-bottom:15px;">
+<input type="checkbox" id="autoPump">
+🤖 Auto Pump
+</label>
 <button
 class="btn on"
 onclick="pumpOn()">
+
 🟢 เปิดปั๊ม
+
 </button>
 
 <button
 class="btn off"
 onclick="pumpOff()">
+
 🔴 ปิดปั๊ม
+
 </button>
 
 </div>
+ <!-- ================= PLANT INFO ================= -->
 
 <div class="card">
 
@@ -352,17 +629,27 @@ onclick="pumpOff()">
 <p>
 ชื่อพืช :
 <b>แตงกวา</b>
+</p>
+
 <br>
 
+<p>
 วันที่ปลูก :
 <b>25/05/2569</b>
+</p>
+
 <br>
 
+<p>
 อายุพืช :
-<b id="age">0 วัน</b>
+<b id="age">
+0 วัน
+</b>
 </p>
 
 </div>
+
+<!-- ================= TASK ================= -->
 
 <div class="card">
 
@@ -375,12 +662,18 @@ placeholder="เพิ่มงานในสวน">
 <button
 class="btn on"
 onclick="addTask()">
-เพิ่มงาน
+
+➕ เพิ่มงาน
+
 </button>
+
+<br><br>
 
 <div id="tasks"></div>
 
 </div>
+
+<!-- ================= NOTE ================= -->
 
 <div class="card">
 
@@ -388,61 +681,115 @@ onclick="addTask()">
 
 <textarea
 id="note"
-placeholder="บันทึกข้อมูล">
+placeholder="บันทึกเหตุการณ์ในสวน">
 </textarea>
 
 <button
 class="btn on"
 onclick="saveNote()">
-บันทึก
+
+💾 บันทึก
+
 </button>
 
 </div>
 
+<!-- ================= TEMP CHART ================= -->
+
 <div class="card">
 
-<h3>📈 กราฟอุณหภูมิ</h3>
+<h3>
+📈 กราฟอุณหภูมิ
+</h3>
 
-<canvas id="tempChart"></canvas>
+<canvas id="tempChart">
+</canvas>
 
 </div>
 
+<!-- ================= HUM CHART ================= -->
+
 <div class="card">
 
-<h3>📈 กราฟความชื้น</h3>
+<h3>
+📊 กราฟความชื้น
+</h3>
 
-<canvas id="humChart"></canvas>
+<canvas id="humChart">
+</canvas>
 
 </div>
+ <div class="card"><h3>☔ กราฟโอกาสฝนตก</h3><canvas id="rainChart"></canvas></div>
+
+<!-- ================= FINANCE SUMMARY ================= -->
 
 <div class="card">
 
-<h3>💰 สรุปการเงิน</h3>
+<h3>
+💰 สรุปการเงินฟาร์ม
+</h3>
 
 <div class="status-grid">
 
 <div class="status-card">
-<h4>💵 รายรับ</h4>
-<b id="income">0 บาท</b>
+
+<h4>
+💵 รายรับ
+</h4>
+
+<b id="income">
+0 บาท
+</b>
+
 </div>
 
 <div class="status-card">
-<h4>💸 รายจ่าย</h4>
-<b id="expense">0 บาท</b>
+
+<h4>
+💸 รายจ่าย
+</h4>
+
+<b id="expense">
+0 บาท
+</b>
+
 </div>
 
 <div class="status-card">
-<h4>📈 กำไร</h4>
-<b id="profit">0 บาท</b>
+
+<h4>
+📈 กำไร
+</h4>
+
+<b id="profit">
+0 บาท
+</b>
+
 </div>
+
+<div class="status-card">
+
+<h4>
+📊 จำนวนรายการ
+</h4>
+
+<b id="totalItem">
+0
+</b>
 
 </div>
 
 </div>
+
+</div>
+
+<!-- ================= ADD FINANCE ================= -->
 
 <div class="card">
 
-<h3>➕ เพิ่มรายการการเงิน</h3>
+<h3>
+➕ เพิ่มรายการ
+</h3>
 
 <input
 type="date"
@@ -451,11 +798,11 @@ id="date">
 <select id="type">
 
 <option value="income">
-รายรับ
+💵 รายรับ
 </option>
 
 <option value="expense">
-รายจ่าย
+💸 รายจ่าย
 </option>
 
 </select>
@@ -473,25 +820,35 @@ placeholder="จำนวนเงิน">
 <button
 class="btn on"
 onclick="addItem()">
+
 💾 บันทึกรายการ
+
 </button>
 
 </div>
 
+<!-- ================= TABLE ================= -->
+
 <div class="card">
 
-<h3>📋 รายการทั้งหมด</h3>
+<h3>
+📋 รายการทั้งหมด
+</h3>
+
+<div style="overflow:auto;">
 
 <table>
 
 <thead>
 
 <tr>
+
 <th>วันที่</th>
 <th>ประเภท</th>
 <th>รายการ</th>
 <th>จำนวนเงิน</th>
 <th>ลบ</th>
+
 </tr>
 
 </thead>
@@ -503,12 +860,9 @@ onclick="addItem()">
 </table>
 
 </div>
-</div> <!-- container -->
-</div> <!-- dashboard -->
 
+</div>
 <script type="module">
-
-// ================= FIREBASE =================
 
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -521,41 +875,49 @@ onAuthStateChanged
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const firebaseConfig = {
+function sendNotification(title,message){
 
-apiKey:
-"AIzaSyAimbgBcmqy_2eyHTwuflNKfThHbzssnoM",
+if(!("Notification" in window)) return;
 
-authDomain:
-"sonlungna-smartfarm.firebaseapp.com",
+if(Notification.permission==="granted"){
 
-projectId:
-"sonlungna-smartfarm",
+new Notification(title,{
+body:message,
+icon:"suanlungna_icon_512.png"
+});
 
-storageBucket:
-"sonlungna-smartfarm.firebasestorage.app",
+}
 
-messagingSenderId:
-"348111875750",
+}
 
-appId:
-"1:348111875750:web:5cd85cf82fd88d6a830e67"
+const firebaseConfig={
+
+apiKey:"AIzaSyAimbgBcmqy_2eyHTwuflNKfThHbzssnoM",
+
+authDomain:"sonlungna-smartfarm.firebaseapp.com",
+
+projectId:"sonlungna-smartfarm",
+
+storageBucket:"sonlungna-smartfarm.firebasestorage.app",
+
+messagingSenderId:"348111875750",
+
+appId:"1:348111875750:web:5cd85cf82fd88d6a830e67"
 
 };
 
-const app =
+const app=
 initializeApp(firebaseConfig);
 
-const auth =
+const auth=
 getAuth(app);
 
-window.login =
-async function(){
+window.login=async()=>{
 
-const email =
+const email=
 document.getElementById('email').value;
 
-const password =
+const password=
 document.getElementById('password').value;
 
 try{
@@ -572,14 +934,13 @@ alert(err.message);
 
 }
 
-}
+};
 
-window.logout =
-function(){
+window.logout=()=>{
 
 signOut(auth);
 
-}
+};
 
 onAuthStateChanged(
 auth,
@@ -595,12 +956,10 @@ document.getElementById(
 'dashboard'
 ).style.display='block';
 
-setTimeout(()=>{
-
-tempChart.resize();
-humChart.resize();
-
-},500);
+document.getElementById(
+'userEmail'
+).innerHTML=
+user.email;
 
 }else{
 
@@ -614,95 +973,107 @@ document.getElementById(
 
 }
 
-}
-);
-
-// ================= DARK MODE =================
-
-window.toggleDark =
-function(){
+});
+ window.toggleDark=()=>{
 
 document.body.classList.toggle(
 'dark'
 );
 
-}
+};
+ let rainAlertSent = false;
+ async function loadWeather(){
 
-// ================= WEATHER API =================
-
-async function loadWeather(){
-
-try{
-
-const res =
+const res=
 await fetch(
 'https://api.open-meteo.com/v1/forecast?latitude=7.734&longitude=100.071&current=temperature_2m,relative_humidity_2m,rain,weather_code,wind_speed_10m&hourly=precipitation_probability'
 );
 
-const data =
+const data=
 await res.json();
 
-document.getElementById('temp')
-.innerHTML =
-data.current.temperature_2m +
-'°C';
+document.getElementById(
+'temp'
+).innerHTML=
+data.current.temperature_2m+'°C';
 
-document.getElementById('hum')
-.innerHTML =
-data.current.relative_humidity_2m +
-'%';
+document.getElementById(
+'hum'
+).innerHTML=
+data.current.relative_humidity_2m+'%';
 
-document.getElementById('rain')
-.innerHTML =
-data.current.rain +
-' mm';
+document.getElementById(
+'rain'
+).innerHTML=
+data.current.rain+' mm';
 
-document.getElementById('wind')
-.innerHTML =
-data.current.wind_speed_10m +
-' km/h';
+document.getElementById(
+'wind'
+).innerHTML=
+data.current.wind_speed_10m+' km/h';
 
-const code =
-data.current.weather_code;
+document.getElementById(
+'weather'
+).innerHTML=
+'🌤️';
+const rainChance =
+(data.hourly && data.hourly.precipitation_probability)
+? data.hourly.precipitation_probability[0]
+: 0;
 
-let weather =
-'☀️ แจ่มใส';
+document.getElementById('rainChance').innerHTML =
+rainChance + '%';
 
-if(code<=1)
-weather='☀️ แจ่มใส';
+/* Auto Pump */
 
-else if(code<=3)
-weather='⛅ มีเมฆ';
+if(
+document.getElementById('autoPump')?.checked &&
+rainChance >= 70
+){
 
-else if(code<=67)
-weather='🌧️ ฝนตก';
-
-else if(code<=77)
-weather='🌫️ หมอก';
-
-else
-weather='⛈️ พายุ';
-
-document.getElementById('weather')
-.innerHTML =
-weather;
-
-const rainChance=(data.hourly&&data.hourly.precipitation_probability)?data.hourly.precipitation_probability[0]:0;
-document.getElementById('rainChance').innerHTML=rainChance+'%';
-
-if(document.getElementById('autoPump')?.checked && rainChance>=70){
 client.publish('farm/pump','OFF');
+
 document.getElementById('pumpStatus').innerHTML='OFF';
-sendNotification('🤖 Auto Pump','ปิดปั๊มอัตโนมัติ เพราะมีโอกาสฝนตกสูง');
+
+sendNotification(
+'🤖 Auto Pump',
+'ปิดปั๊มอัตโนมัติ เพราะมีโอกาสฝนตกสูง'
+);
+
 }
 
-if(rainChance>=70){
-document.getElementById('rainAlert').innerHTML='<div class="rain-warning">🌧️ โอกาสฝนตก '+rainChance+'% แนะนำหยุดรดน้ำ</div>';
-sendNotification('🌧️ แจ้งเตือนฝนตก','โอกาสฝนตก '+rainChance+'%');
+/* Rain Alert */
+
+if(rainChance >= 70){
+
+document.getElementById('rainAlert').innerHTML =
+`<div class="rain-warning">
+🌧️ แจ้งเตือนฝนตก<br>
+โอกาสฝนตก ${rainChance}%<br>
+แนะนำหยุดรดน้ำ
+</div>`;
+
+if(!rainAlertSent){
+
+sendNotification(
+'🌧️ แจ้งเตือนฝนตก',
+`โอกาสฝนตก ${rainChance}%`
+);
+
+rainAlertSent = true;
+
+}
+
 }else{
-document.getElementById('rainAlert').innerHTML='';
-}
 
+rainAlertSent = false;
+
+document.getElementById('rainAlert').innerHTML =
+`<div class="rain-safe">
+☀️ สภาพอากาศปกติ
+</div>`;
+
+}
 updateTempChart(
 data.current.temperature_2m
 );
@@ -710,12 +1081,7 @@ data.current.temperature_2m
 updateHumChart(
 data.current.relative_humidity_2m
 );
-
-}catch(err){
-
-console.log(err);
-
-}
+updateRainChart(rainChance);
 
 }
 
@@ -723,124 +1089,113 @@ loadWeather();
 
 setInterval(
 loadWeather,
-600000
+300000
 );
- // ================= MQTT =================
-
-const client = mqtt.connect(
+ const client=mqtt.connect(
 'wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt',
 {
 username:'smartfarm',
-password:'Kla12345',
-reconnectPeriod:3000
+password:'Kla12345'
 }
 );
 
 client.on('connect',()=>{
 
-document.getElementById('nodeStatus')
-.innerHTML='ONLINE';
+document.getElementById(
+'nodeStatus'
+).innerHTML='ONLINE';
 
-document.getElementById('nodeStatus')
-.className='online';
+client.subscribe(
+'farm/pump/status'
+);
 
-client.subscribe('farm/pump/status');
-client.subscribe('farm/node/status');
-client.subscribe('farm/time');
-client.subscribe('farm/soil');
-client.subscribe('farm/light');
+client.subscribe(
+'farm/time'
+);
+
+client.subscribe(
+'farm/soil'
+);
+
+client.subscribe(
+'farm/light'
+);
 
 });
 
-client.on('close',offline);
-client.on('error',offline);
+client.on(
+'message',
+(topic,message)=>{
 
-function offline(){
-
-document.getElementById('nodeStatus')
-.innerHTML='OFFLINE';
-
-document.getElementById('nodeStatus')
-.className='offline';
-
-}
-
-client.on('message',(topic,message)=>{
-
-const msg =
+const msg=
 message.toString();
 
-if(topic==='farm/pump/status')
-document.getElementById('pumpStatus')
-.innerHTML=msg;
-
-if(topic==='farm/node/status')
-document.getElementById('nodeStatus')
-.innerHTML=msg;
-
 if(topic==='farm/time')
-document.getElementById('rtc')
-.innerHTML=msg;
+document.getElementById(
+'rtc'
+).innerHTML=msg;
+
+if(topic==='farm/pump/status')
+document.getElementById(
+'pumpStatus'
+).innerHTML=msg;
 
 if(topic==='farm/soil')
-document.getElementById('soil')
-.innerHTML=msg+'%';
+document.getElementById(
+'soil'
+).innerHTML=msg+'%';
 
 if(topic==='farm/light')
-document.getElementById('light')
-.innerHTML=msg;
+document.getElementById(
+'light'
+).innerHTML=msg;
 
 });
 
-window.pumpOn=function(){
+window.pumpOn=()=>{
 
 client.publish(
 'farm/pump',
 'ON'
 );
 
-}
+};
 
-window.pumpOff=function(){
+window.pumpOff=()=>{
 
 client.publish(
 'farm/pump',
 'OFF'
 );
 
-}
-
-// ================= อายุพืช =================
-
-const plantDate =
+};
+ const plantDate=
 new Date('2026-05-25');
 
 function updateAge(){
 
-const diff =
+const diff=
 Math.floor(
-(Date.now() -
+(Date.now()-
 plantDate.getTime())
 /86400000
 );
 
-document.getElementById('age')
-.innerHTML =
-diff + ' วัน';
+document.getElementById(
+'age'
+).innerHTML=
+diff+' วัน';
 
 }
 
 updateAge();
-
-// ================= CHART =================
-
-const tempLabels=[];
+ const tempLabels=[];
 const tempData=[];
 
 const humLabels=[];
 const humData=[];
 
-const tempChart =
+const tempChart=
 new Chart(
 document.getElementById(
 'tempChart'
@@ -852,18 +1207,14 @@ labels:tempLabels,
 datasets:[{
 label:'Temperature',
 data:tempData,
-tension:.4,
-borderWidth:3
+borderWidth:4,
+fill:true
 }]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false
 }
 }
 );
 
-const humChart =
+const humChart=
 new Chart(
 document.getElementById(
 'humChart'
@@ -875,13 +1226,9 @@ labels:humLabels,
 datasets:[{
 label:'Humidity',
 data:humData,
-tension:.4,
-borderWidth:3
+borderWidth:4,
+fill:true
 }]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false
 }
 }
 );
@@ -925,43 +1272,52 @@ humData.shift();
 humChart.update();
 
 }
- // ================= งานประจำวัน =================
+ 
+const rainLabels=[];
+const rainData=[];
+const rainChart=new Chart(document.getElementById('rainChart'),{
+type:'line',
+data:{labels:rainLabels,datasets:[{label:'Rain %',data:rainData,borderWidth:3}]}
+});
+function updateRainChart(v){
+ rainLabels.push(new Date().toLocaleTimeString());
+ rainData.push(v);
+ if(rainLabels.length>20){rainLabels.shift();rainData.shift();}
+ rainChart.update();
+}
 
 let tasks =
+
 JSON.parse(
-localStorage.getItem('tasks')
-|| '[]'
+localStorage.getItem('tasks') || '[]'
 );
 
 function renderTasks(){
 
 const el =
-document.getElementById(
-'tasks'
-);
+document.getElementById('tasks');
+
+if(!el) return;
 
 el.innerHTML='';
 
 tasks.forEach((t,i)=>{
 
 el.innerHTML += `
-<div style="
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:10px;
-border-bottom:1px solid #eee;
-">
+
+<div class="task-item">
 
 <span>${t}</span>
 
 <button
-class="deleteBtn"
 onclick="delTask(${i})">
-ลบ
+
+🗑️
+
 </button>
 
 </div>
+
 `;
 
 });
@@ -973,50 +1329,45 @@ JSON.stringify(tasks)
 
 }
 
-window.addTask =
-function(){
+window.addTask=()=>{
 
 const txt =
-document.getElementById(
-'taskInput'
-).value;
+document.getElementById('taskInput').value;
 
-if(txt.trim()){
+if(!txt.trim()) return;
 
 tasks.push(txt);
-
-renderTasks();
 
 document.getElementById(
 'taskInput'
 ).value='';
 
-}
+renderTasks();
 
-}
+};
 
-window.delTask =
-function(i){
+window.delTask=(i)=>{
 
 tasks.splice(i,1);
 
 renderTasks();
 
-}
+};
 
 renderTasks();
+ const noteEl =
+document.getElementById('note');
 
-// ================= FARM NOTE =================
+if(noteEl){
 
-document.getElementById(
-'note'
-).value =
+noteEl.value =
 localStorage.getItem(
 'farmNote'
 ) || '';
 
-window.saveNote =
-function(){
+}
+
+window.saveNote=()=>{
 
 localStorage.setItem(
 'farmNote',
@@ -1029,11 +1380,8 @@ alert(
 'บันทึกเรียบร้อย'
 );
 
-}
-
-// ================= รายรับรายจ่าย =================
-
-let financeData =
+};
+ let financeData =
 JSON.parse(
 localStorage.getItem(
 'farmData'
@@ -1053,41 +1401,58 @@ renderFinance();
 
 }
 
-window.addItem =
-function(){
+window.addItem=()=>{
 
-financeData.push({
-
-date:
+const date =
 document.getElementById(
 'date'
-).value,
+).value;
 
-type:
+const type =
 document.getElementById(
 'type'
-).value,
+).value;
 
-name:
+const name =
 document.getElementById(
 'name'
-).value,
+).value;
 
-amount:
+const amount =
 Number(
 document.getElementById(
 'amount'
 ).value
-)
+);
+
+if(
+!date ||
+!name ||
+!amount
+) return;
+
+financeData.push({
+
+date,
+type,
+name,
+amount
 
 });
 
 saveFinance();
 
-}
+document.getElementById(
+'name'
+).value='';
 
-window.deleteItem =
-function(index){
+document.getElementById(
+'amount'
+).value='';
+
+};
+
+window.deleteItem=(index)=>{
 
 financeData.splice(
 index,
@@ -1096,17 +1461,19 @@ index,
 
 saveFinance();
 
-}
+};
 
 function renderFinance(){
 
 let income=0;
 let expense=0;
 
-const tb =
+const tb=
 document.getElementById(
 'tb'
 );
+
+if(!tb) return;
 
 tb.innerHTML='';
 
@@ -1116,19 +1483,20 @@ financeData.forEach(
 if(
 r.type==='income'
 )
-income += r.amount;
+income+=r.amount;
 else
-expense += r.amount;
+expense+=r.amount;
 
 tb.innerHTML += `
+
 <tr>
 
 <td>${r.date}</td>
 
 <td>
 ${r.type==='income'
-?'รายรับ'
-:'รายจ่าย'}
+?'💵 รายรับ'
+:'💸 รายจ่าย'}
 </td>
 
 <td>${r.name}</td>
@@ -1141,18 +1509,24 @@ ${r.amount.toLocaleString()}
 
 <button
 class="deleteBtn"
-onclick="deleteItem(${index})">
+onclick="
+deleteItem(${index})
+">
 
-ลบ
+🗑️
 
 </button>
 
 </td>
 
 </tr>
+
 `;
 
 });
+
+const profit =
+income-expense;
 
 document.getElementById(
 'income'
@@ -1169,16 +1543,42 @@ expense.toLocaleString()
 document.getElementById(
 'profit'
 ).innerHTML =
-(
-income-expense
-).toLocaleString()
+profit.toLocaleString()
 +' บาท';
+
+document.getElementById(
+'totalItem'
+).innerHTML =
+financeData.length;
 
 }
 
 renderFinance();
+  </script>
+
+
+<script>
+
+if('Notification' in window){
+
+Notification.requestPermission()
+.then(permission=>{
+
+if(permission==="granted"){
+
+new Notification(
+"🌧️ สวนลุงนะ",
+{
+body:"ระบบแจ้งเตือนพร้อมใช้งาน"
+}
+);
+
+}
+
+});
+
+}
 
 </script>
-
 </body>
 </html>
