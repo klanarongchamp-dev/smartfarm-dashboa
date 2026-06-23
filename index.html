@@ -16,6 +16,30 @@ setTimeout(()=>{
  if(s){s.classList.add('fadeout');setTimeout(()=>s.remove(),700);}
 },2200);
 
+
+function saveSchedule(){
+ localStorage.setItem('time1',document.getElementById('time1').value);
+ localStorage.setItem('time2',document.getElementById('time2').value);
+ addLog('Schedule Saved');
+ toast('🕒 บันทึกตารางรดน้ำแล้ว');
+}
+
+document.getElementById('time1').value=localStorage.getItem('time1')||'06:00';
+document.getElementById('time2').value=localStorage.getItem('time2')||'17:00';
+
+setInterval(()=>{
+ const now=new Date();
+ const hhmm=now.toTimeString().slice(0,5);
+ if(hhmm===document.getElementById('time1').value ||
+    hhmm===document.getElementById('time2').value){
+      client.publish('farm/pump','ON');
+ }
+},30000);
+
+client.on("connect",()=>{
+ document.getElementById('lastSeen').innerHTML=new Date().toLocaleTimeString('th-TH');
+});
+
 </script>
 <style>
 body{margin:0;padding:15px;font-family:Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#0f172a,#14532d)}
@@ -79,6 +103,21 @@ transition:opacity .6s ease;
 <div class="card"><div class="label">🤖 Auto Pump</div><div class="value"><input type="checkbox" id="autoPump"></div></div>
 <div class="card"><div class="label">⚙️ Rain Limit (mm)</div><div class="value"><input type="number" id="rainLimit" min="0" max="100" style="width:80px"></div></div>
 <div class="card"><div class="label">📊 System</div><div id="systemInfo" class="value" style="font-size:14px">V7.4 PRO</div></div>
+
+
+<div class="card">
+<div class="label">🕒 Smart Schedule</div>
+<div style="font-size:12px;margin-top:8px">
+<input type="time" id="time1" value="06:00"><br><br>
+<input type="time" id="time2" value="17:00"><br><br>
+<button class="on" onclick="saveSchedule()">💾 บันทึกเวลา</button>
+</div>
+</div>
+
+<div class="card">
+<div class="label">📡 Last Seen</div>
+<div id="lastSeen" class="value" style="font-size:16px">--</div>
+</div>
 
 </div>
 
@@ -192,6 +231,30 @@ setTimeout(()=>{
  const s=document.getElementById('splash');
  if(s){s.classList.add('fadeout');setTimeout(()=>s.remove(),700);}
 },2200);
+
+
+function saveSchedule(){
+ localStorage.setItem('time1',document.getElementById('time1').value);
+ localStorage.setItem('time2',document.getElementById('time2').value);
+ addLog('Schedule Saved');
+ toast('🕒 บันทึกตารางรดน้ำแล้ว');
+}
+
+document.getElementById('time1').value=localStorage.getItem('time1')||'06:00';
+document.getElementById('time2').value=localStorage.getItem('time2')||'17:00';
+
+setInterval(()=>{
+ const now=new Date();
+ const hhmm=now.toTimeString().slice(0,5);
+ if(hhmm===document.getElementById('time1').value ||
+    hhmm===document.getElementById('time2').value){
+      client.publish('farm/pump','ON');
+ }
+},30000);
+
+client.on("connect",()=>{
+ document.getElementById('lastSeen').innerHTML=new Date().toLocaleTimeString('th-TH');
+});
 
 </script>
 </body></html>
