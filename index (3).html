@@ -1,0 +1,109 @@
+<!DOCTYPE html><html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Farm</title><script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script><style>
+body{
+font-family:Arial;
+background:#f5f7fa;
+padding:20px;
+text-align:center;
+}
+
+.card{
+background:white;
+border-radius:20px;
+padding:25px;
+max-width:400px;
+margin:auto;
+box-shadow:0 4px 15px rgba(0,0,0,.15);
+}
+
+.status{
+font-size:22px;
+margin:15px;
+font-weight:bold;
+}
+
+.online{
+color:green;
+}
+
+.offline{
+color:red;
+}
+
+button{
+width:100%;
+padding:18px;
+font-size:22px;
+border:none;
+border-radius:12px;
+margin-top:15px;
+color:white;
+cursor:pointer;
+}
+
+.on{
+background:#28a745;
+}
+
+.off{
+background:#dc3545;
+}
+</style></head><body><div class="card"><h1>🌱 Smart Farm</h1><div class="status">
+NodeMCU :
+<span id="node" class="offline">OFFLINE</span>
+</div><div class="status">
+Pump :
+<span id="pump">UNKNOWN</span>
+</div><button class="on" onclick="pumpOn()">
+🟢 เปิดปั๊ม
+</button><button class="off" onclick="pumpOff()">
+🔴 ปิดปั๊ม
+</button></div><script>
+
+const client = mqtt.connect(
+"wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt",
+{
+username:"smartfarm",
+password:"Kla12345"
+}
+);
+
+client.on("connect",()=>{
+
+document.getElementById("node").innerHTML="ONLINE";
+document.getElementById("node").className="online";
+
+client.subscribe("farm/pump/status");
+
+});
+
+client.on("message",(topic,message)=>{
+
+let msg = message.toString();
+
+if(topic=="farm/pump/status"){
+document.getElementById("pump").innerHTML=msg;
+}
+
+});
+
+client.on("close",()=>{
+
+document.getElementById("node").innerHTML="OFFLINE";
+document.getElementById("node").className="offline";
+
+});
+
+function pumpOn(){
+client.publish("farm/pump","ON");
+}
+
+function pumpOff(){
+client.publish("farm/pump","OFF");
+}
+
+</script></body>
+</html>
