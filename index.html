@@ -3,8 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="apple-touch-icon" href="suanlungna_icon_180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="สวนลุงนะ ฟาร์ม">
+<link rel="manifest" href="manifest.json">
+
 <title>Smart Farm V7.3 Notification Edition</title>
-<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js">
+setTimeout(()=>{
+ const s=document.getElementById('splash');
+ if(s){s.classList.add('fadeout');setTimeout(()=>s.remove(),700);}
+},2200);
+
+</script>
 <style>
 body{margin:0;padding:15px;font-family:Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#0f172a,#14532d)}
 .header,.card,.toast{background:rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:24px}
@@ -17,8 +29,30 @@ button{width:100%;padding:16px;border:none;border-radius:18px;margin-top:10px;fo
 .online{color:#4ade80}.offline{color:#f87171}
 .toast{position:fixed;top:15px;left:15px;right:15px;padding:14px;display:none;text-align:center;z-index:999}
 </style>
+
+<style>
+#splash{
+position:fixed;inset:0;
+background:linear-gradient(135deg,#0f172a,#14532d);
+display:flex;flex-direction:column;
+justify-content:center;align-items:center;
+z-index:99999;
+transition:opacity .6s ease;
+}
+#splash img{width:140px;height:140px;border-radius:24px}
+#splash h1{color:white;margin-top:16px;font-family:Arial}
+.fadeout{opacity:0;pointer-events:none}
+</style>
+
 </head>
 <body>
+
+<div id="splash">
+<img src="suanlungna_icon_180.png">
+<h1>🌱 สวนลุงนะ ฟาร์ม</h1>
+<p style="color:white">Smart Farm V7.6 Premium</p>
+</div>
+
 <div id="toast" class="toast"></div>
 
 
@@ -153,5 +187,11 @@ toast('🌧️ ปริมาณฝนสูง ระบบปิดปั๊�
 }
 loadWeather();
 setInterval(loadWeather,600000);
+
+setTimeout(()=>{
+ const s=document.getElementById('splash');
+ if(s){s.classList.add('fadeout');setTimeout(()=>s.remove(),700);}
+},2200);
+
 </script>
 </body></html>
