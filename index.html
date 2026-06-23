@@ -32,12 +32,34 @@ button{width:100%;padding:16px;border:none;border-radius:18px;margin-top:10px;fo
 <div class="card"><div class="label">💧 ความชื้น</div><div id="hum" class="value">--%</div></div>
 <div class="card"><div class="label">🌧️ ฝน</div><div id="rain" class="value">--</div></div>
 <div class="card"><div class="label">🤖 Auto Pump</div><div class="value"><input type="checkbox" id="autoPump"></div></div>
+<div class="card"><div class="label">⚙️ Rain Limit</div><div class="value"><input type="number" id="rainLimit" min="0" max="100" style="width:80px"></div></div>
+<div class="card"><div class="label">📊 System</div><div id="systemInfo" class="value" style="font-size:14px">V7.4 PRO</div></div>
+
 </div>
 
 <button class="on" onclick="pumpOn()">🟢 เปิดปั๊ม</button>
 <button class="off" onclick="pumpOff()">🔴 ปิดปั๊ม</button>
 
+<div class="card" style="margin-top:12px">
+<h3>📋 Activity Log</h3>
+<div id="logs" style="text-align:left;font-size:13px"></div>
+</div>
+
 <script>
+
+function addLog(msg){
+ let logs=JSON.parse(localStorage.getItem('logs')||'[]');
+ logs.unshift(new Date().toLocaleTimeString('th-TH')+' - '+msg);
+ logs=logs.slice(0,20);
+ localStorage.setItem('logs',JSON.stringify(logs));
+ renderLogs();
+}
+function renderLogs(){
+ const logs=JSON.parse(localStorage.getItem('logs')||'[]');
+ const el=document.getElementById('logs');
+ if(el) el.innerHTML=logs.join('<br>');
+}
+
 function toast(msg){
 const t=document.getElementById('toast');
 t.innerHTML=msg;
@@ -51,7 +73,7 @@ client.on("connect",()=>{
 document.getElementById("node").innerHTML="ONLINE";
 document.getElementById("node").className="value online";
 client.subscribe("farm/pump/status");
-toast("📡 MQTT Connected");
+toast("📡 MQTT Connected");addLog('MQTT Connected');
 });
 
 client.on("message",(topic,message)=>{
@@ -62,11 +84,11 @@ document.getElementById("pump").innerHTML=message.toString();
 
 function pumpOn(){
 client.publish("farm/pump","ON");
-toast("🚰 ปั๊มเปิดแล้ว");
+toast("🚰 ปั๊มเปิดแล้ว");addLog('Pump ON');
 }
 function pumpOff(){
 client.publish("farm/pump","OFF");
-toast("🚰 ปั๊มปิดแล้ว");
+toast("🚰 ปั๊มปิดแล้ว");addLog('Pump OFF');
 }
 
 setInterval(()=>{
@@ -77,7 +99,11 @@ document.getElementById("age").innerHTML=Math.floor((Date.now()-new Date("2026-0
 
 const autoPump=document.getElementById('autoPump');
 autoPump.checked=localStorage.getItem('autoPump')==='true';
+const rainLimit=document.getElementById('rainLimit');
+rainLimit.value=localStorage.getItem('rainLimit')||70;
+rainLimit.onchange=()=>localStorage.setItem('rainLimit',rainLimit.value);
 autoPump.onchange=()=>localStorage.setItem('autoPump',autoPump.checked);
+renderLogs();
 
 async function loadWeather(){
 try{
@@ -89,9 +115,9 @@ document.getElementById('temp').innerHTML=Math.round(d.current.temperature_2m)+'
 document.getElementById('hum').innerHTML=Math.round(d.current.relative_humidity_2m)+'%';
 document.getElementById('rain').innerHTML=rain+'%';
 
-if(rain>=70 && autoPump.checked){
+document.getElementById('systemInfo').innerHTML='AUTO: '+(autoPump.checked?'ON':'OFF')+'<br>RAIN LIMIT: '+rainLimit.value+'%<br>V7.4 PRO'; if(rain>=Number(rainLimit.value) && autoPump.checked){
 client.publish('farm/pump','OFF');
-toast('🌧️ ฝนสูง ระบบปิดปั๊มอัตโนมัติ');
+toast('🌧️ ฝนสูง ระบบปิดปั๊มอัตโนมัติ');addLog('Auto Pump OFF');
 }
 }catch(e){}
 }
