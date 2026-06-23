@@ -1,109 +1,86 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Smart Farm</title><script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script><style>
-body{
-font-family:Arial;
-background:#f5f7fa;
-padding:20px;
-text-align:center;
-}
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Farm V7.1 Weather Edition</title>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<style>
+body{margin:0;padding:15px;font-family:Arial,sans-serif;color:#fff;
+background:linear-gradient(135deg,#0f172a,#14532d)}
+.header,.card{background:rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:24px}
+.header{text-align:center;padding:18px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{text-align:center;padding:16px}
+.label{font-size:14px}.value{font-size:22px;font-weight:bold;margin-top:8px}
+button{width:100%;padding:16px;border:none;border-radius:18px;margin-top:10px;font-size:18px;color:#fff;font-weight:bold}
+.on{background:#22c55e}.off{background:#ef4444}
+.online{color:#4ade80}.offline{color:#f87171}
+</style>
+</head>
+<body>
+<div class="header"><h1>🌱 Smart Farm</h1><p>V7.1 Weather Edition</p></div>
 
-.card{
-background:white;
-border-radius:20px;
-padding:25px;
-max-width:400px;
-margin:auto;
-box-shadow:0 4px 15px rgba(0,0,0,.15);
-}
+<div class="grid">
+<div class="card"><div class="label">📡 NodeMCU</div><div id="node" class="value offline">OFFLINE</div></div>
+<div class="card"><div class="label">🚰 Pump</div><div id="pump" class="value">UNKNOWN</div></div>
+<div class="card"><div class="label">⏰ เวลา</div><div id="clock" class="value">--:--:--</div></div>
+<div class="card"><div class="label">📅 อายุพืช</div><div id="age" class="value">0 วัน</div></div>
+<div class="card"><div class="label">🌡️ อุณหภูมิ</div><div id="temp" class="value">--°C</div></div>
+<div class="card"><div class="label">💧 ความชื้น</div><div id="hum" class="value">--%</div></div>
+<div class="card"><div class="label">🌧️ ฝน</div><div id="rain" class="value">--</div></div>
+<div class="card"><div class="label">📍 อากาศ</div><div id="weather" class="value">--</div></div>
+</div>
 
-.status{
-font-size:22px;
-margin:15px;
-font-weight:bold;
-}
+<button class="on" onclick="pumpOn()">🟢 เปิดปั๊ม</button>
+<button class="off" onclick="pumpOff()">🔴 ปิดปั๊ม</button>
 
-.online{
-color:green;
-}
-
-.offline{
-color:red;
-}
-
-button{
-width:100%;
-padding:18px;
-font-size:22px;
-border:none;
-border-radius:12px;
-margin-top:15px;
-color:white;
-cursor:pointer;
-}
-
-.on{
-background:#28a745;
-}
-
-.off{
-background:#dc3545;
-}
-</style></head><body><div class="card"><h1>🌱 Smart Farm</h1><div class="status">
-NodeMCU :
-<span id="node" class="offline">OFFLINE</span>
-</div><div class="status">
-Pump :
-<span id="pump">UNKNOWN</span>
-</div><button class="on" onclick="pumpOn()">
-🟢 เปิดปั๊ม
-</button><button class="off" onclick="pumpOff()">
-🔴 ปิดปั๊ม
-</button></div><script>
-
-const client = mqtt.connect(
-"wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt",
-{
-username:"smartfarm",
-password:"Kla12345"
-}
-);
+<script>
+const client=mqtt.connect("wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt",{username:"smartfarm",password:"Kla12345"});
 
 client.on("connect",()=>{
-
-document.getElementById("node").innerHTML="ONLINE";
-document.getElementById("node").className="online";
-
-client.subscribe("farm/pump/status");
-
+ document.getElementById("node").innerHTML="ONLINE";
+ document.getElementById("node").className="value online";
+ client.subscribe("farm/pump/status");
 });
 
 client.on("message",(topic,message)=>{
-
-let msg = message.toString();
-
-if(topic=="farm/pump/status"){
-document.getElementById("pump").innerHTML=msg;
-}
-
+ if(topic==="farm/pump/status"){
+   document.getElementById("pump").innerHTML=message.toString();
+ }
 });
 
 client.on("close",()=>{
-
-document.getElementById("node").innerHTML="OFFLINE";
-document.getElementById("node").className="offline";
-
+ document.getElementById("node").innerHTML="OFFLINE";
+ document.getElementById("node").className="value offline";
 });
 
-function pumpOn(){
-client.publish("farm/pump","ON");
-}
+function pumpOn(){client.publish("farm/pump","ON");}
+function pumpOff(){client.publish("farm/pump","OFF");}
 
-function pumpOff(){
-client.publish("farm/pump","OFF");
-}
+setInterval(()=>{
+ document.getElementById("clock").innerHTML=new Date().toLocaleTimeString("th-TH");
+},1000);
 
-</script></body>
-</html>
+const plantDate=new Date("2026-05-25");
+function updateAge(){
+ const days=Math.floor((Date.now()-plantDate.getTime())/86400000);
+ document.getElementById("age").innerHTML=days+" วัน";
+}
+updateAge();
+
+async function loadWeather(){
+ try{
+  const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.7563&longitude=100.5018&current=temperature_2m,relative_humidity_2m,rain');
+  const d=await r.json();
+  document.getElementById('temp').innerHTML=Math.round(d.current.temperature_2m)+'°C';
+  document.getElementById('hum').innerHTML=Math.round(d.current.relative_humidity_2m)+'%';
+  const rain=Math.round(d.current.rain||0);
+  document.getElementById('rain').innerHTML=rain;
+  document.getElementById('weather').innerHTML=rain>0?'🌧️ ฝนตก':'☀️ ปกติ';
+ }catch(e){console.log(e)}
+}
+loadWeather();
+setInterval(loadWeather,600000);
+</script>
+</body></html>
