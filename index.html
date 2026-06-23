@@ -21,7 +21,7 @@ button{width:100%;padding:16px;border:none;border-radius:18px;margin-top:10px;fo
 <body>
 <div id="toast" class="toast"></div>
 
-<div class="header"><h1>🌱สวนลุงนะ</h1><p>อย่าทำเฒ่า บ่าวทำโถก</p></p></div>
+<div class="header"><h1>🌱 Smart Farm</h1><p>V7.3 Notification Edition</p></div>
 
 <div class="grid">
 <div class="card"><div class="label">📡 NodeMCU</div><div id="node" class="value offline">OFFLINE</div></div>
@@ -39,6 +39,7 @@ button{width:100%;padding:16px;border:none;border-radius:18px;margin-top:10px;fo
 
 <button class="on" onclick="pumpOn()">🟢 เปิดปั๊ม</button>
 <button class="off" onclick="pumpOff()">🔴 ปิดปั๊ม</button>
+<button class="on" onclick="saveSettings()">💾 บันทึกค่า</button>
 
 <div class="card" style="margin-top:12px">
 <h3>📋 Activity Log</h3>
@@ -101,9 +102,29 @@ const autoPump=document.getElementById('autoPump');
 autoPump.checked=localStorage.getItem('autoPump')==='true';
 const rainLimit=document.getElementById('rainLimit');
 rainLimit.value=localStorage.getItem('rainLimit')||70;
-rainLimit.onchange=()=>localStorage.setItem('rainLimit',rainLimit.value);
-autoPump.onchange=()=>localStorage.setItem('autoPump',autoPump.checked);
+
+function updateSystemCard(){
+ document.getElementById('systemInfo').innerHTML =
+ 'AUTO: '+(autoPump.checked?'ON':'OFF')+
+ '<br>RAIN LIMIT: '+rainLimit.value+'%<br>V7.4.2 PRO';
+}
+
+function saveSettings(){
+ localStorage.setItem('rainLimit', rainLimit.value);
+ localStorage.setItem('autoPump', autoPump.checked);
+ updateSystemCard();
+ toast('💾 บันทึกค่าเรียบร้อย');
+ addLog('Save Settings');
+}
+
+autoPump.onchange=()=>{
+ localStorage.setItem('autoPump',autoPump.checked);
+ updateSystemCard();
+};
+
+updateSystemCard();
 renderLogs();
+
 
 async function loadWeather(){
 try{
@@ -115,7 +136,7 @@ document.getElementById('temp').innerHTML=Math.round(d.current.temperature_2m)+'
 document.getElementById('hum').innerHTML=Math.round(d.current.relative_humidity_2m)+'%';
 document.getElementById('rain').innerHTML=rain+'%';
 
-document.getElementById('systemInfo').innerHTML='AUTO: '+(autoPump.checked?'ON':'OFF')+'<br>RAIN LIMIT: '+rainLimit.value+'%<br>V7.4 PRO'; if(rain>=Number(rainLimit.value) && autoPump.checked){
+updateSystemCard(); if(rain>=Number(rainLimit.value) && autoPump.checked){
 client.publish('farm/pump','OFF');
 toast('🌧️ ฝนสูง ระบบปิดปั๊มอัตโนมัติ');addLog('Auto Pump OFF');
 }
