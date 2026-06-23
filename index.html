@@ -21,7 +21,18 @@ button{width:100%;padding:16px;border:none;border-radius:18px;margin-top:10px;fo
 <body>
 <div id="toast" class="toast"></div>
 
-<div class="header"><h1>🌱 สวนลุงนะ ฟาร์ม 🌱</h1><p>วัยรุ่นทำสวน</p></div>
+
+<div class="header">
+<img src="suanlungna_icon_180.png" style="width:90px;height:90px;border-radius:20px;margin-bottom:10px;">
+<h1>🌱 สวนลุงนะ ฟาร์ม</h1>
+<p>Smart Farm Dashboard V7.5 Branding</p>
+</div>
+
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+<button class="on" onclick="pumpOn()">🟢 เปิดปั๊ม</button>
+<button class="off" onclick="pumpOff()">🔴 ปิดปั๊ม</button>
+</div>
 
 <div class="grid">
 <div class="card"><div class="label">📡 NodeMCU</div><div id="node" class="value offline">OFFLINE</div></div>
@@ -30,15 +41,13 @@ button{width:100%;padding:16px;border:none;border-radius:18px;margin-top:10px;fo
 <div class="card"><div class="label">📅 อายุพืช</div><div id="age" class="value">0 วัน</div></div>
 <div class="card"><div class="label">🌡️ อุณหภูมิ</div><div id="temp" class="value">--°C</div></div>
 <div class="card"><div class="label">💧 ความชื้น</div><div id="hum" class="value">--%</div></div>
-<div class="card"><div class="label">🌧️ ฝน</div><div id="rain" class="value">--</div></div>
+<div class="card"><div class="label">🌧️ ปริมาณฝน</div><div id="rain" class="value">--</div></div>
 <div class="card"><div class="label">🤖 Auto Pump</div><div class="value"><input type="checkbox" id="autoPump"></div></div>
-<div class="card"><div class="label">⚙️ Rain Limit</div><div class="value"><input type="number" id="rainLimit" min="0" max="100" style="width:80px"></div></div>
+<div class="card"><div class="label">⚙️ Rain Limit (mm)</div><div class="value"><input type="number" id="rainLimit" min="0" max="100" style="width:80px"></div></div>
 <div class="card"><div class="label">📊 System</div><div id="systemInfo" class="value" style="font-size:14px">V7.4 PRO</div></div>
 
 </div>
 
-<button class="on" onclick="pumpOn()">🟢 เปิดปั๊ม</button>
-<button class="off" onclick="pumpOff()">🔴 ปิดปั๊ม</button>
 <button class="on" onclick="saveSettings()">💾 บันทึกค่า</button>
 
 <div class="card" style="margin-top:12px">
@@ -101,12 +110,12 @@ document.getElementById("age").innerHTML=Math.floor((Date.now()-new Date("2026-0
 const autoPump=document.getElementById('autoPump');
 autoPump.checked=localStorage.getItem('autoPump')==='true';
 const rainLimit=document.getElementById('rainLimit');
-rainLimit.value=localStorage.getItem('rainLimit')||70;
+rainLimit.value=localStorage.getItem('rainLimit')||2;
 
 function updateSystemCard(){
  document.getElementById('systemInfo').innerHTML =
  'AUTO: '+(autoPump.checked?'ON':'OFF')+
- '<br>RAIN LIMIT: '+rainLimit.value+'%<br>V7.4.2 PRO';
+ '<br>RAIN LIMIT: '+rainLimit.value+' mm<br>V7.4.2 PRO';
 }
 
 function saveSettings(){
@@ -134,11 +143,11 @@ const rain=Math.round(d.current.rain||0);
 
 document.getElementById('temp').innerHTML=Math.round(d.current.temperature_2m)+'°C';
 document.getElementById('hum').innerHTML=Math.round(d.current.relative_humidity_2m)+'%';
-document.getElementById('rain').innerHTML=rain+'%';
+document.getElementById('rain').innerHTML=rain+' mm';
 
 updateSystemCard(); if(rain>=Number(rainLimit.value) && autoPump.checked){
 client.publish('farm/pump','OFF');
-toast('🌧️ ฝนสูง ระบบปิดปั๊มอัตโนมัติ');addLog('Auto Pump OFF');
+toast('🌧️ ปริมาณฝนสูง ระบบปิดปั๊มอัตโนมัติ');addLog('Auto Pump OFF');
 }
 }catch(e){}
 }
