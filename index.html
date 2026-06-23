@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Smart Farm V7.1 Weather Edition</title>
+<title>Smart Farm V7.3 Notification Edition</title>
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <style>
-body{margin:0;padding:15px;font-family:Arial,sans-serif;color:#fff;
-background:linear-gradient(135deg,#0f172a,#14532d)}
-.header,.card{background:rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:24px}
+body{margin:0;padding:15px;font-family:Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#0f172a,#14532d)}
+.header,.card,.toast{background:rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:24px}
 .header{text-align:center;padding:18px;margin-bottom:12px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .card{text-align:center;padding:16px}
@@ -16,10 +15,13 @@ background:linear-gradient(135deg,#0f172a,#14532d)}
 button{width:100%;padding:16px;border:none;border-radius:18px;margin-top:10px;font-size:18px;color:#fff;font-weight:bold}
 .on{background:#22c55e}.off{background:#ef4444}
 .online{color:#4ade80}.offline{color:#f87171}
+.toast{position:fixed;top:15px;left:15px;right:15px;padding:14px;display:none;text-align:center;z-index:999}
 </style>
 </head>
 <body>
-<div class="header"><h1>🌱 Smart Farm</h1><p>V7.1 Weather Edition</p></div>
+<div id="toast" class="toast"></div>
+
+<div class="header"><h1>🌱 Smart Farm</h1><p>V7.3 Notification Edition</p></div>
 
 <div class="grid">
 <div class="card"><div class="label">📡 NodeMCU</div><div id="node" class="value offline">OFFLINE</div></div>
@@ -29,56 +31,69 @@ button{width:100%;padding:16px;border:none;border-radius:18px;margin-top:10px;fo
 <div class="card"><div class="label">🌡️ อุณหภูมิ</div><div id="temp" class="value">--°C</div></div>
 <div class="card"><div class="label">💧 ความชื้น</div><div id="hum" class="value">--%</div></div>
 <div class="card"><div class="label">🌧️ ฝน</div><div id="rain" class="value">--</div></div>
-<div class="card"><div class="label">📍 อากาศ</div><div id="weather" class="value">--</div></div>
+<div class="card"><div class="label">🤖 Auto Pump</div><div class="value"><input type="checkbox" id="autoPump"></div></div>
 </div>
 
 <button class="on" onclick="pumpOn()">🟢 เปิดปั๊ม</button>
 <button class="off" onclick="pumpOff()">🔴 ปิดปั๊ม</button>
 
 <script>
+function toast(msg){
+const t=document.getElementById('toast');
+t.innerHTML=msg;
+t.style.display='block';
+setTimeout(()=>t.style.display='none',3000);
+}
+
 const client=mqtt.connect("wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt",{username:"smartfarm",password:"Kla12345"});
 
 client.on("connect",()=>{
- document.getElementById("node").innerHTML="ONLINE";
- document.getElementById("node").className="value online";
- client.subscribe("farm/pump/status");
+document.getElementById("node").innerHTML="ONLINE";
+document.getElementById("node").className="value online";
+client.subscribe("farm/pump/status");
+toast("📡 MQTT Connected");
 });
 
 client.on("message",(topic,message)=>{
- if(topic==="farm/pump/status"){
-   document.getElementById("pump").innerHTML=message.toString();
- }
+if(topic==="farm/pump/status"){
+document.getElementById("pump").innerHTML=message.toString();
+}
 });
 
-client.on("close",()=>{
- document.getElementById("node").innerHTML="OFFLINE";
- document.getElementById("node").className="value offline";
-});
-
-function pumpOn(){client.publish("farm/pump","ON");}
-function pumpOff(){client.publish("farm/pump","OFF");}
+function pumpOn(){
+client.publish("farm/pump","ON");
+toast("🚰 ปั๊มเปิดแล้ว");
+}
+function pumpOff(){
+client.publish("farm/pump","OFF");
+toast("🚰 ปั๊มปิดแล้ว");
+}
 
 setInterval(()=>{
- document.getElementById("clock").innerHTML=new Date().toLocaleTimeString("th-TH");
+document.getElementById("clock").innerHTML=new Date().toLocaleTimeString("th-TH");
 },1000);
 
-const plantDate=new Date("2026-05-25");
-function updateAge(){
- const days=Math.floor((Date.now()-plantDate.getTime())/86400000);
- document.getElementById("age").innerHTML=days+" วัน";
-}
-updateAge();
+document.getElementById("age").innerHTML=Math.floor((Date.now()-new Date("2026-05-25").getTime())/86400000)+" วัน";
+
+const autoPump=document.getElementById('autoPump');
+autoPump.checked=localStorage.getItem('autoPump')==='true';
+autoPump.onchange=()=>localStorage.setItem('autoPump',autoPump.checked);
 
 async function loadWeather(){
- try{
-  const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.7563&longitude=100.5018&current=temperature_2m,relative_humidity_2m,rain');
-  const d=await r.json();
-  document.getElementById('temp').innerHTML=Math.round(d.current.temperature_2m)+'°C';
-  document.getElementById('hum').innerHTML=Math.round(d.current.relative_humidity_2m)+'%';
-  const rain=Math.round(d.current.rain||0);
-  document.getElementById('rain').innerHTML=rain;
-  document.getElementById('weather').innerHTML=rain>0?'🌧️ ฝนตก':'☀️ ปกติ';
- }catch(e){console.log(e)}
+try{
+const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.7563&longitude=100.5018&current=temperature_2m,relative_humidity_2m,rain');
+const d=await r.json();
+const rain=Math.round(d.current.rain||0);
+
+document.getElementById('temp').innerHTML=Math.round(d.current.temperature_2m)+'°C';
+document.getElementById('hum').innerHTML=Math.round(d.current.relative_humidity_2m)+'%';
+document.getElementById('rain').innerHTML=rain+'%';
+
+if(rain>=70 && autoPump.checked){
+client.publish('farm/pump','OFF');
+toast('🌧️ ฝนสูง ระบบปิดปั๊มอัตโนมัติ');
+}
+}catch(e){}
 }
 loadWeather();
 setInterval(loadWeather,600000);
