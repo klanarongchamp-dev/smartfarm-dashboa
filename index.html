@@ -50,6 +50,50 @@ client.on("connect",()=>{
  document.getElementById('lastSeen').innerHTML=new Date().toLocaleTimeString('th-TH');
 });
 
+
+document.getElementById('dur1').value=localStorage.getItem('dur1')||'10';
+document.getElementById('dur2').value=localStorage.getItem('dur2')||'5';
+
+let lastRun='';
+
+function saveSchedule(){
+ localStorage.setItem('time1',time1.value);
+ localStorage.setItem('time2',time2.value);
+ localStorage.setItem('dur1',dur1.value);
+ localStorage.setItem('dur2',dur2.value);
+ localStorage.setItem('scheduleEnable',scheduleEnable.checked);
+ addLog('Schedule Saved');
+ toast('🕒 บันทึกตารางรดน้ำแล้ว');
+}
+
+setInterval(()=>{
+ const now=new Date();
+ const hhmm=now.toTimeString().slice(0,5);
+ const key=new Date().toDateString()+hhmm;
+
+ if(!scheduleEnable.checked) return;
+
+ if(hhmm===time1.value && lastRun!==key){
+   lastRun=key;
+   client.publish('farm/pump','ON');
+   addLog('Schedule 1 ON');
+   setTimeout(()=>{
+      client.publish('farm/pump','OFF');
+      addLog('Schedule 1 OFF');
+   }, parseInt(dur1.value||10)*60000);
+ }
+
+ if(hhmm===time2.value && lastRun!==key){
+   lastRun=key;
+   client.publish('farm/pump','ON');
+   addLog('Schedule 2 ON');
+   setTimeout(()=>{
+      client.publish('farm/pump','OFF');
+      addLog('Schedule 2 OFF');
+   }, parseInt(dur2.value||5)*60000);
+ }
+},15000);
+
 </script>
 <style>
 body{margin:0;padding:15px;font-family:Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#0f172a,#14532d)}
@@ -92,8 +136,8 @@ transition:opacity .6s ease;
 
 <div class="header">
 <img src="suanlungna_icon_180.png" style="width:90px;height:90px;border-radius:20px;margin-bottom:10px;">
-<h1>🌱 สวนลุงนะ ฟาร์ม🌏</h1>
-<p>อย่าทำเฒ่า</p>
+<h1>🌱 สวนลุงนะ ฟาร์ม</h1>
+<p>Smart Farm Dashboard V7.5 Branding</p>
 </div>
 
 
@@ -119,8 +163,8 @@ transition:opacity .6s ease;
 <div class="label">🕒 Smart Schedule</div>
 <div style="font-size:12px;margin-top:8px">
 <label><input type="checkbox" id="scheduleEnable"> เปิดใช้งาน Schedule</label><br><br>
-<input type="time" id="time1" value="06:00"><br><br>
-<input type="time" id="time2" value="17:00"><br><br>
+<input type="time" id="time1" value="06:00"><br>⏱️ <input type="number" id="dur1" min="1" max="120" value="10" style="width:70px"> นาที<br><br>
+<input type="time" id="time2" value="17:00"><br>⏱️ <input type="number" id="dur2" min="1" max="120" value="5" style="width:70px"> นาที<br><br>
 <button class="on" onclick="saveSchedule()">💾 บันทึกเวลา</button>
 </div>
 </div>
