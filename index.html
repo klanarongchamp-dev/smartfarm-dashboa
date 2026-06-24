@@ -10,91 +10,7 @@
 <link rel="manifest" href="manifest.json">
 
 <title>Smart Farm V7.3 Notification Edition</title>
-<script src="https://unpkg.com/mqtt/dist/mqtt.min.js">
-setTimeout(()=>{
- const s=document.getElementById('splash');
- if(s){s.classList.add('fadeout');setTimeout(()=>s.remove(),700);}
-},2200);
-
-
-
-document.getElementById('scheduleEnable').checked =
-localStorage.getItem('scheduleEnable') === 'true';
-
-document.getElementById('scheduleEnable').onchange=()=>{
- localStorage.setItem('scheduleEnable',
- document.getElementById('scheduleEnable').checked);
-};
-
-
-function saveSchedule(){
- localStorage.setItem('time1',document.getElementById('time1').value);
- localStorage.setItem('time2',document.getElementById('time2').value);
- addLog('Schedule Saved');
- toast('🕒 บันทึกตารางรดน้ำแล้ว');
-}
-
-document.getElementById('time1').value=localStorage.getItem('time1')||'06:00';
-document.getElementById('time2').value=localStorage.getItem('time2')||'17:00';
-
-setInterval(()=>{
- const now=new Date();
- const hhmm=now.toTimeString().slice(0,5);
- if(document.getElementById('scheduleEnable').checked && (hhmm===document.getElementById('time1').value ||
-    hhmm===document.getElementById('time2').value)){
-      client.publish('farm/pump','ON');
- }
-},30000);
-
-client.on("connect",()=>{
- document.getElementById('lastSeen').innerHTML=new Date().toLocaleTimeString('th-TH');
-});
-
-
-document.getElementById('dur1').value=localStorage.getItem('dur1')||'10';
-document.getElementById('dur2').value=localStorage.getItem('dur2')||'5';
-
-let lastRun='';
-
-function saveSchedule(){
- localStorage.setItem('time1',time1.value);
- localStorage.setItem('time2',time2.value);
- localStorage.setItem('dur1',dur1.value);
- localStorage.setItem('dur2',dur2.value);
- localStorage.setItem('scheduleEnable',scheduleEnable.checked);
- addLog('Schedule Saved');
- toast('🕒 บันทึกตารางรดน้ำแล้ว');
-}
-
-setInterval(()=>{
- const now=new Date();
- const hhmm=now.toTimeString().slice(0,5);
- const key=new Date().toDateString()+hhmm;
-
- if(!scheduleEnable.checked) return;
-
- if(hhmm===time1.value && lastRun!==key){
-   lastRun=key;
-   client.publish('farm/pump','ON');
-   addLog('Schedule 1 ON');
-   setTimeout(()=>{
-      client.publish('farm/pump','OFF');
-      addLog('Schedule 1 OFF');
-   }, parseInt(dur1.value||10)*60000);
- }
-
- if(hhmm===time2.value && lastRun!==key){
-   lastRun=key;
-   client.publish('farm/pump','ON');
-   addLog('Schedule 2 ON');
-   setTimeout(()=>{
-      client.publish('farm/pump','OFF');
-      addLog('Schedule 2 OFF');
-   }, parseInt(dur2.value||5)*60000);
- }
-},15000);
-
-</script>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <style>
 body{margin:0;padding:15px;font-family:Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#0f172a,#14532d)}
 .header,.card,.toast{background:rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:24px}
@@ -137,7 +53,7 @@ transition:opacity .6s ease;
 <div class="header">
 <img src="suanlungna_icon_180.png" style="width:90px;height:90px;border-radius:20px;margin-bottom:10px;">
 <h1>🌱 สวนลุงนะ ฟาร์ม</h1>
-<p>Smart Farm Dashboard V7.5 Branding</p>
+<p>Smart Farm Dashboard V8 Stability</p>
 </div>
 
 
@@ -222,6 +138,14 @@ client.subscribe("farm/pump/status");
 toast("📡 MQTT Connected");addLog('MQTT Connected');
 });
 
+
+client.on("reconnect",()=>addLog('MQTT Reconnecting'));
+client.on("offline",()=>{
+ document.getElementById("node").innerHTML="OFFLINE";
+ document.getElementById("node").className="value offline";
+});
+client.on("error",(e)=>console.log(e));
+
 client.on("message",(topic,message)=>{
 if(topic==="farm/pump/status"){
 document.getElementById("pump").innerHTML=message.toString();
@@ -251,7 +175,7 @@ rainLimit.value=localStorage.getItem('rainLimit')||2;
 function updateSystemCard(){
  document.getElementById('systemInfo').innerHTML =
  'AUTO: '+(autoPump.checked?'ON':'OFF')+
- '<br>RAIN LIMIT: '+rainLimit.value+' mm<br>V7.4.2 PRO';
+ '<br>RAIN LIMIT: '+rainLimit.value+' mm<br>V8 STABILITY';
 }
 
 function saveSettings(){
