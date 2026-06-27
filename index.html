@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="สวนลุงนะ ฟาร์ม">
 <link rel="manifest" href="manifest.json">
 
-<title>Smart Farm V7.3 Notification Edition</title>
+<title>Smart Farm V9 Premium</title>
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <style>
 body{margin:0;padding:15px;font-family:Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#0f172a,#14532d)}
@@ -53,7 +53,7 @@ transition:opacity .6s ease;
 <div class="header">
 <img src="suanlungna_icon_180.png" style="width:90px;height:90px;border-radius:20px;margin-bottom:10px;">
 <h1>🌱 สวนลุงนะ ฟาร์ม</h1>
-<p>Smart Farm Dashboard V8 Stability</p>
+<p>Smart Farm Dashboard V9 Premium</p>
 </div>
 
 
@@ -65,8 +65,8 @@ transition:opacity .6s ease;
 <div class="grid">
 <div class="card"><div class="label">📡 NodeMCU</div><div id="node" class="value offline">OFFLINE</div></div>
 <div class="card"><div class="label">🚰 Pump</div><div id="pump" class="value">UNKNOWN</div></div>
-<div class="card"><div class="label">⏰ เวลา</div><div id="clock" class="value">--:--:--</div></div>
-<div class="card"><div class="label">📅 อายุพืช</div><div id="age" class="value">0 วัน</div></div>
+<div class="card"><div class="label">🕒 วันที่ / เวลา</div><div id="clock" class="value">--</div></div>
+<div class="card"><div class="label">🌱 พืช</div><div id="age" class="value">แตงกวา<br><small>อายุ 0 วัน</small></div></div>
 <div class="card"><div class="label">🌡️ อุณหภูมิ</div><div id="temp" class="value">--°C</div></div>
 <div class="card"><div class="label">💧 ความชื้น</div><div id="hum" class="value">--%</div></div>
 <div class="card"><div class="label">🌧️ ปริมาณฝน</div><div id="rain" class="value">--</div></div>
@@ -162,7 +162,7 @@ toast("🚰 ปั๊มปิดแล้ว");addLog('Pump OFF');
 }
 
 setInterval(()=>{
-document.getElementById("clock").innerHTML=new Date().toLocaleTimeString("th-TH");
+const d=new Date();document.getElementById("clock").innerHTML=d.toLocaleDateString("th-TH")+"<br>"+d.toLocaleTimeString("th-TH");
 },1000);
 
 document.getElementById("age").innerHTML=Math.floor((Date.now()-new Date("2026-05-25").getTime())/86400000)+" วัน";
