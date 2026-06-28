@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="สวนลุงนะ ฟาร์ม">
 <link rel="manifest" href="manifest.json">
 
-<title>Smart Farm V9 Premium</title>
+<title>Smart Farm V10.0 Premium</title>
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <style>
 body{margin:0;padding:15px;font-family:Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#0f172a,#14532d)}
@@ -44,7 +44,7 @@ transition:opacity .6s ease;
 <div id="splash">
 <img src="suanlungna_icon_180.png">
 <h1>🌱 สวนลุงนะ ฟาร์ม</h1>
-<p style="color:white">Smart Farm V7.6 Premium</p>
+<p style="color:white">Smart Farm V10.0 Premium</p>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -53,7 +53,7 @@ transition:opacity .6s ease;
 <div class="header">
 <img src="suanlungna_icon_180.png" style="width:90px;height:90px;border-radius:20px;margin-bottom:10px;">
 <h1>🌱 สวนลุงนะ ฟาร์ม</h1>
-<p>Smart Farm Dashboard V9 Premium</p>
+<p>Smart Farm Dashboard V10.0 Premium</p>
 </div>
 
 
@@ -66,7 +66,7 @@ transition:opacity .6s ease;
 <div class="card"><div class="label">📡 NodeMCU</div><div id="node" class="value offline">OFFLINE</div></div>
 <div class="card"><div class="label">🚰 Pump</div><div id="pump" class="value">UNKNOWN</div></div>
 <div class="card"><div class="label">🕒 วันที่ / เวลา</div><div id="clock" class="value">--</div></div>
-<div class="card"><div class="label">🌱 พืช</div><div id="age" class="value">แตงกวา<br><small>อายุ 0 วัน</small></div></div>
+<div class="card"><div class="label">🌱 ข้อมูลพืช</div><div id="age" class="value">แตงกวา<br><small>อายุ 0 วัน</small><br><small>เก็บเกี่ยวอีก 45 วัน</small></div></div>
 <div class="card"><div class="label">🌡️ อุณหภูมิ</div><div id="temp" class="value">--°C</div></div>
 <div class="card"><div class="label">💧 ความชื้น</div><div id="hum" class="value">--%</div></div>
 <div class="card"><div class="label">🌧️ ปริมาณฝน</div><div id="rain" class="value">--</div></div>
@@ -80,7 +80,7 @@ transition:opacity .6s ease;
 💾 บันทึกค่า
 </button>
 </div>
-<div class="card"><div class="label">📊 System</div><div id="systemInfo" class="value" style="font-size:14px">V7.4 PRO</div></div>
+<div class="card"><div class="label">📊 System</div><div id="systemInfo" class="value" style="font-size:14px">V10.0 PREMIUM</div></div>
 
 
 <div class="card">
@@ -165,7 +165,8 @@ setInterval(()=>{
 const d=new Date();document.getElementById("clock").innerHTML=d.toLocaleDateString("th-TH")+"<br>"+d.toLocaleTimeString("th-TH");
 },1000);
 
-document.getElementById("age").innerHTML=Math.floor((Date.now()-new Date("2026-05-25").getTime())/86400000)+" วัน";
+const plantAge=Math.floor((Date.now()-new Date("2026-05-25").getTime())/86400000);
+document.getElementById("age").innerHTML="แตงกวา<br><small>อายุ "+plantAge+" วัน</small><br><small>เก็บเกี่ยวอีก "+Math.max(0,45-plantAge)+" วัน</small>";
 
 const autoPump=document.getElementById('autoPump');
 autoPump.checked=localStorage.getItem('autoPump')==='true';
@@ -254,4 +255,123 @@ client.on("connect",()=>{
 });
 
 </script>
+
+<!-- V9.3 Settings Button -->
+<div style="position:fixed;right:18px;bottom:90px;z-index:9999">
+<button onclick="document.getElementById('settingsPanel').style.display='block'" class="on">⚙️</button>
+</div>
+
+<div id="settingsPanel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);z-index:10000;">
+<div style="max-width:420px;margin:40px auto;background:#1e293b;padding:18px;border-radius:20px;color:white">
+<h3>Settings V9.3</h3>
+<label>ชื่อพืช</label>
+<input id="plantNameInput" style="width:100%" value="แตงกวา">
+<label>วันที่ปลูก</label>
+<input id="plantDateInput" type="date" style="width:100%">
+<button class="on" onclick="savePlantProfile()">💾 บันทึก</button>
+<button class="off" onclick="document.getElementById('settingsPanel').style.display='none'">ปิด</button>
+</div>
+</div>
+
+<script>
+function savePlantProfile(){
+ localStorage.setItem("plantName",document.getElementById("plantNameInput").value);
+ toast("บันทึกข้อมูลพืชแล้ว");
+ document.getElementById("settingsPanel").style.display="none";
+}
+</script>
+
+<script>
+// ===== V9.4 Relay Status =====
+const relayState=[false,false,false,false];
+
+function updateRelayButton(id){
+ const b=document.getElementById("relay"+id);
+ if(!b) return;
+ b.textContent=relayState[id-1]?"ON":"OFF";
+ b.className=relayState[id-1]?"on":"off";
+}
+
+function relayToggle(id){
+ relayState[id-1]=!relayState[id-1];
+ updateRelayButton(id);
+ if(typeof client!=="undefined"){
+   client.publish("farm/relay/"+id, relayState[id-1]?"ON":"OFF");
+ }
+ addLog("Relay "+id+" "+(relayState[id-1]?"ON":"OFF"));
+}
+
+function updatePlantInfo(){
+ const name=localStorage.getItem("plantName")||"แตงกวา";
+ const plantDate=localStorage.getItem("plantDate")||"2026-05-25";
+ const harvest=Number(localStorage.getItem("harvestDay")||45);
+ const age=Math.floor((Date.now()-new Date(plantDate))/86400000);
+ const remain=Math.max(0,harvest-age);
+ const ageCard=document.getElementById("age");
+ if(ageCard){
+   ageCard.innerHTML=name+"<br><small>อายุ "+age+" วัน</small><br><small>เก็บเกี่ยวอีก "+remain+" วัน</small>";
+ }
+}
+setInterval(updatePlantInfo,60000);
+updatePlantInfo();
+</script>
+
+
+<style>
+#bottomNav{position:fixed;bottom:0;left:0;right:0;height:70px;background:rgba(15,23,42,.92);display:flex;justify-content:space-around;align-items:center;backdrop-filter:blur(20px);z-index:9999}
+#bottomNav button{background:none;border:none;color:#fff;font-size:13px;width:20%}
+</style>
+
+<div id="bottomNav">
+<button onclick="window.scrollTo({top:0,behavior:'smooth'})">🏠<br>Home</button>
+<button onclick="document.getElementById('logs').scrollIntoView({behavior:'smooth'})">📋<br>Logs</button>
+<button onclick="document.getElementById('settingsPanel').style.display='block'">⚙️<br>Settings</button>
+<button onclick="loadWeather()">🌦<br>Weather</button>
+<button onclick="toast('Smart Farm V9.5')">ℹ️<br>Info</button>
+</div>
+
+<script>
+async function loadWeather(){
+ try{
+  const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.7563&longitude=100.5018&current=temperature_2m');
+  const d=await r.json();
+  toast("อุณหภูมิ "+Math.round(d.current.temperature_2m)+"°C");
+ }catch(e){}
+}
+console.log("Smart Farm Dashboard V10.0 Premium");
+</script>
+
+
+<style>
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
+.summary-card{background:rgba(255,255,255,.08);padding:12px;border-radius:16px;text-align:center}
+</style>
+
+<div class="card" style="margin-top:15px">
+<h3>🌾 Farm Summary</h3>
+<div class="summary-grid">
+<div class="summary-card"><b id="sumPlant">แตงกวา</b><br>พืช</div>
+<div class="summary-card"><b id="sumAge">0 วัน</b><br>อายุ</div>
+<div class="summary-card"><b id="sumPump">UNKNOWN</b><br>ปั๊ม</div>
+<div class="summary-card"><b id="sumMQTT">ONLINE</b><br>MQTT</div>
+</div>
+</div>
+
+<script>
+function updateSummaryCards(){
+ const age=document.getElementById("age");
+ if(age){
+   const txt=age.innerText.split("\n");
+   document.getElementById("sumPlant").innerText=txt[0]||"แตงกวา";
+   document.getElementById("sumAge").innerText=(txt[1]||"0 วัน").replace("อายุ ","");
+ }
+ const p=document.getElementById("pump");
+ if(p) document.getElementById("sumPump").innerText=p.innerText;
+ document.getElementById("sumMQTT").innerText=(typeof client!=="undefined"&&client.connected)?"ONLINE":"OFFLINE";
+}
+setInterval(updateSummaryCards,1000);
+updateSummaryCards();
+console.log("Smart Farm Dashboard V10.0 Premium");
+</script>
+
 </body></html>
