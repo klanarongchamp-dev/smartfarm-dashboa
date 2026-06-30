@@ -1,466 +1,260 @@
-<!doctype html>
-<html lang="th"><head><script src="/_sdk/telemetry_sdk.js"></script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-  <title>สวนลุงนะ Smart Farm</title>
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-  <script src="/_sdk/editing_sdk.js"></script>
-  <style>
-:root{--vh:1vh}*{box-sizing:border-box}body{font-family:'DM Sans',sans-serif;margin:0;padding:0;overflow-x:hidden;transition:background 1s;text-rendering:optimizeLegibility}body.theme-day{background:linear-gradient(160deg,#064e3b,#065f46,#047857)}body.theme-night{background:linear-gradient(160deg,#0f172a,#1e1b4b,#0f172a)}.page{display:none;padding:16px 16px 90px}.page.active{display:block}#splash{position:fixed;inset:0;background:linear-gradient(135deg,#0f172a,#14532d);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;transition:opacity .8s}#splash.fadeout{opacity:0;pointer-events:none}.splash-loader{width:48px;height:48px;border:3px solid rgba(255,255,255,.2);border-top-color:#4ade80;border-radius:50%;animation:spin 1s linear infinite;margin-top:20px}@keyframes spin{to{transform:rotate(360deg)}}.toast-msg{position:fixed;top:16px;left:16px;right:16px;padding:14px 20px;border-radius:16px;background:rgba(30,41,59,.95);backdrop-filter:blur(12px);color:#fff;text-align:center;z-index:100000;display:none;font-weight:500;animation:slideDown .3s}@keyframes slideDown{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}.glass{background:rgba(255,255,255,.08);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.12);border-radius:20px}.glass-strong{background:rgba(255,255,255,.12);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.18);border-radius:24px}.weather-hero{border-radius:28px;padding:28px 24px;text-align:center;background:rgba(255,255,255,.06);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15)}.weather-hero .temp{font-size:72px;font-weight:700;line-height:1}.weather-hero .condition{font-size:18px;opacity:.8;margin-top:4px}.weather-hero .meta{display:flex;justify-content:center;gap:24px;margin-top:12px;font-size:14px;opacity:.7}.pump-ring{width:160px;height:160px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:transform .2s}.pump-ring:active{transform:scale(.94)}.pump-ring::before{content:'';position:absolute;inset:-4px;border-radius:50%;border:4px solid transparent;transition:all .6s}.pump-ring.on::before{border-color:#4ade80;box-shadow:0 0 30px #4ade80,0 0 60px rgba(74,222,128,.3);animation:pulseG 2s infinite}.pump-ring.off::before{border-color:#f87171;box-shadow:0 0 30px #f87171;animation:pulseR 2s infinite}@keyframes pulseG{0%,100%{box-shadow:0 0 30px #4ade80}50%{box-shadow:0 0 50px #4ade80,0 0 80px rgba(74,222,128,.3)}}@keyframes pulseR{0%,100%{box-shadow:0 0 30px #f87171}50%{box-shadow:0 0 50px #f87171}}.pump-stats{display:flex;justify-content:center;gap:32px;margin-top:16px;font-size:13px;opacity:.7}.pump-stats .stat-val{font-size:20px;font-weight:700;opacity:1}.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.quick-btn{background:rgba(255,255,255,.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px 8px;text-align:center;cursor:pointer;transition:transform .15s,background .2s}.quick-btn:active{transform:scale(.92);background:rgba(255,255,255,.15)}.quick-btn .qicon{font-size:24px}.quick-btn .qlabel{font-size:11px;margin-top:4px;opacity:.7}.sensor-card{transition:transform .15s}.sensor-card:active{transform:scale(.95)}@keyframes floatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}.float-anim{animation:floatCard 4s ease-in-out infinite}.float-anim:nth-child(2){animation-delay:.5s}.float-anim:nth-child(3){animation-delay:1s}.float-anim:nth-child(4){animation-delay:1.5s}.timeline-item{display:flex;gap:12px;position:relative;padding-bottom:16px}.timeline-item:not(:last-child)::after{content:'';position:absolute;left:11px;top:28px;bottom:0;width:2px;background:rgba(255,255,255,.15)}.timeline-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}.ios-card-group{background:rgba(255,255,255,.08);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden;margin-bottom:16px}.ios-card-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.06)}.ios-card-item:last-child{border-bottom:none}.toggle{width:50px;height:28px;border-radius:14px;background:#4b5563;position:relative;cursor:pointer;transition:background .3s}.toggle.on{background:#22c55e}.toggle::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .3s}.toggle.on::after{transform:translateX(22px)}.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:72px;background:rgba(15,23,42,.95);backdrop-filter:blur(20px);display:flex;justify-content:space-around;align-items:center;z-index:9999;border-top:1px solid rgba(255,255,255,.1)}.nav-btn{background:none;border:none;color:rgba(255,255,255,.5);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 12px;transition:color .2s;cursor:pointer}.nav-btn.active{color:#4ade80}.nav-btn span{font-size:22px}.status-on{color:#4ade80}.status-off{color:#f87171}
-</style>
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
-  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
- </head>
- <body data-template-id="__page-root" class="min-h-screen text-white theme-day" style="background: linear-gradient(160deg, rgb(6, 78, 59), rgb(6, 95, 70), rgb(4, 120, 87));">
-  <div id="splash">
-   <div style="font-size:64px">
-    🌱
-   </div>
-   <h1 data-template-id="splash-title" class="canva-text text-2xl font-bold text-white mt-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 32px;">🌱 สวนลุงนะ ฟาร์ม</h1>
-   <p data-template-id="splash-sub" class="canva-text text-white/70 mt-2" style="color: rgba(255, 255, 255, 0.7); font-weight: 400; font-style: normal; font-size: 16px;">Smart Farm V12.0</p>
-   <div class="splash-loader"></div>
-  </div>
-  <div id="toast" class="toast-msg"></div><!-- HOME -->
-  <div id="page-home" class="page active">
-   <!-- Greeting -->
-   <div class="mb-4">
-    <h1 id="greeting-text" data-template-id="greeting-title" class="canva-text font-bold" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 28px;">Good Morning ☀️</h1>
-    <p data-template-id="greeting-farm" class="canva-text text-white/70 mt-1" style="color: rgba(255, 255, 255, 0.7); font-weight: 400; font-style: normal; font-size: 16px;">สวนลุงนะ ฟาร์ม</p>
-    <p id="greeting-date" class="text-sm text-white/50 mt-1"></p>
-   </div><!-- Hero Weather -->
-   <div class="weather-hero mb-5">
-    <div class="text-4xl" id="weather-icon">
-     ☀️
-    </div>
-    <div class="temp" id="hero-temp">
-     --°
-    </div>
-    <div class="condition" id="hero-condition">
-     Loading...
-    </div>
-    <div class="meta">
-     <span id="hero-hum">💧 --%</span> <span id="hero-rain">🌧️ -- mm</span>
-    </div>
-   </div><!-- Pump Ring -->
-   <div class="flex justify-center mb-3">
-    <div id="pump-ring" class="pump-ring glass-strong off" onclick="togglePump()">
-     <div class="text-center">
-      <div style="font-size:36px">
-       🚰
-      </div>
-      <div id="pump-label" class="font-bold mt-1 text-lg status-off">
-       OFF
-      </div>
-      <div data-template-id="pump-tap-hint" class="canva-text text-xs text-white/50 mt-1" style="color: rgba(255, 255, 255, 0.5); font-weight: 400; font-style: normal; font-size: 16px;">แตะเพื่อสั่งงาน</div>
-     </div>
-    </div>
-   </div>
-   <div class="pump-stats mb-5">
-    <div class="text-center">
-     <div class="text-white/50 text-xs">
-      Runtime
-     </div>
-     <div class="stat-val" id="pump-runtime">
-      00:00
-     </div>
-    </div>
-    <div class="text-center">
-     <div class="text-white/50 text-xs">
-      Today
-     </div>
-     <div class="stat-val" id="pump-today">
-      0 min
-     </div>
-    </div>
-   </div><!-- Quick Actions -->
-   <div class="quick-grid mb-5">
-    <div class="quick-btn" onclick="quickPump(5)">
-     <div class="qicon">
-      🚿
-     </div>
-     <div class="qlabel">
-      5 นาที
-     </div>
-    </div>
-    <div class="quick-btn" onclick="quickPump(10)">
-     <div class="qicon">
-      🌙
-     </div>
-     <div class="qlabel">
-      Night
-     </div>
-    </div>
-    <div class="quick-btn" onclick="quickPump(3)">
-     <div class="qicon">
-      🌧
-     </div>
-     <div class="qlabel">
-      Rain
-     </div>
-    </div>
-    <div class="quick-btn" onclick="toast('📷 Camera coming soon')">
-     <div class="qicon">
-      📷
-     </div>
-     <div class="qlabel">
-      Camera
-     </div>
-    </div>
-   </div><!-- Sensor Cards -->
-   <div class="grid grid-cols-2 gap-3 mb-5">
-    <div class="glass p-4 text-center sensor-card float-anim">
-     <div style="font-size:26px">
-      🌡️
-     </div>
-     <div data-template-id="card-temp-label" class="canva-text text-xs text-white/60 mt-1" style="color: rgba(255, 255, 255, 0.6); font-weight: 400; font-style: normal; font-size: 16px;">อุณหภูมิ</div>
-     <div id="val-temp" class="font-bold text-xl mt-1">
-      --°C
-     </div>
-    </div>
-    <div class="glass p-4 text-center sensor-card float-anim">
-     <div style="font-size:26px">
-      💧
-     </div>
-     <div data-template-id="card-hum-label" class="canva-text text-xs text-white/60 mt-1" style="color: rgba(255, 255, 255, 0.6); font-weight: 400; font-style: normal; font-size: 16px;">ความชื้น</div>
-     <div id="val-hum" class="font-bold text-xl mt-1">
-      --%
-     </div>
-    </div>
-    <div class="glass p-4 text-center sensor-card float-anim">
-     <div style="font-size:26px">
-      🌱
-     </div>
-     <div data-template-id="card-soil-label" class="canva-text text-xs text-white/60 mt-1" style="color: rgba(255, 255, 255, 0.6); font-weight: 400; font-style: normal; font-size: 16px;">Soil Moisture</div>
-     <div id="val-soil" class="font-bold text-xl mt-1">
-      --%
-     </div>
-    </div>
-    <div class="glass p-4 text-center sensor-card float-anim">
-     <div style="font-size:26px">
-      ☀️
-     </div>
-     <div data-template-id="card-light-label" class="canva-text text-xs text-white/60 mt-1" style="color: rgba(255, 255, 255, 0.6); font-weight: 400; font-style: normal; font-size: 16px;">แสง</div>
-     <div id="val-light" class="font-bold text-xl mt-1">
-      -- lux
-     </div>
-    </div>
-    <div class="glass p-4 text-center sensor-card float-anim">
-     <div style="font-size:26px">
-      🌧️
-     </div>
-     <div data-template-id="card-rain-label" class="canva-text text-xs text-white/60 mt-1" style="color: rgba(255, 255, 255, 0.6); font-weight: 400; font-style: normal; font-size: 16px;">ปริมาณฝน</div>
-     <div id="val-rain" class="font-bold text-xl mt-1">
-      -- mm
-     </div>
-    </div>
-    <div class="glass p-4 text-center sensor-card float-anim">
-     <div style="font-size:26px">
-      📡
-     </div>
-     <div data-template-id="card-node-label" class="canva-text text-xs text-white/60 mt-1" style="color: rgba(255, 255, 255, 0.6); font-weight: 400; font-style: normal; font-size: 16px;">NodeMCU</div>
-     <div id="val-node" class="font-bold text-xl mt-1 status-off">
-      OFFLINE
-     </div>
-    </div>
-   </div><!-- Activity Timeline -->
-   <div class="glass-strong p-4">
-    <h3 data-template-id="log-title" class="canva-text font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 18px;">📋 Activity</h3>
-    <div id="timeline-list" class="max-h-48 overflow-y-auto"></div>
-   </div>
-  </div><!-- HISTORY -->
-  <div id="page-history" class="page">
-   <h2 data-template-id="history-title" class="canva-text text-lg font-bold mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">📈 History</h2>
-   <div class="glass-strong p-4">
-    <div id="history-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
-   </div>
-  </div><!-- NOTIFICATIONS -->
-  <div id="page-notif" class="page">
-   <h2 data-template-id="notif-title" class="canva-text text-lg font-bold mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🔔 Notifications</h2>
-   <div class="glass-strong p-4">
-    <p data-template-id="notif-empty" class="canva-text text-white/50 text-center py-6" style="color: rgba(255, 255, 255, 0.5); font-weight: 400; font-style: normal; font-size: 16px;">ไม่มีการแจ้งเตือน</p>
-   </div>
-  </div><!-- SETTINGS -->
-  <div id="page-settings" class="page">
-   <h2 data-template-id="settings-title" class="canva-text text-lg font-bold mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">⚙️ Settings</h2>
-   <div class="ios-card-group">
-    <div class="ios-card-item" onclick="toggleSetting('autoPump')">
-     <div class="flex items-center gap-3"><span>🤖</span><span data-template-id="set-autopump" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Auto Pump</span>
-     </div>
-     <div id="tog-autoPump" class="toggle"></div>
-    </div>
-    <div class="ios-card-item" onclick="toggleSetting('notify')">
-     <div class="flex items-center gap-3"><span>🔔</span><span data-template-id="set-notify" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Notification</span>
-     </div>
-     <div id="tog-notify" class="toggle"></div>
-    </div>
-   </div>
-   <div class="ios-card-group">
-    <div class="ios-card-item" onclick="openSub('schedule')">
-     <div class="flex items-center gap-3"><span>🕒</span><span data-template-id="set-schedule" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Smart Schedule</span>
-     </div><span class="text-white/40">›</span>
-    </div>
-    <div class="ios-card-item" onclick="openSub('rain')">
-     <div class="flex items-center gap-3"><span>🌧️</span><span data-template-id="set-rainlimit" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Rain Limit</span>
-     </div><span class="text-white/40">›</span>
-    </div>
-    <div class="ios-card-item" onclick="openSub('farm')">
-     <div class="flex items-center gap-3"><span>🌱</span><span data-template-id="set-farm" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Farm Information</span>
-     </div><span class="text-white/40">›</span>
-    </div>
-   </div>
-   <div class="ios-card-group">
-    <div class="ios-card-item" onclick="openSub('mqtt')">
-     <div class="flex items-center gap-3"><span>📡</span><span data-template-id="set-mqtt" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">MQTT Settings</span>
-     </div><span class="text-white/40">›</span>
-    </div>
-    <div class="ios-card-item" onclick="openSub('telegram')">
-     <div class="flex items-center gap-3"><span>✈️</span><span data-template-id="set-telegram" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Telegram</span>
-     </div><span class="text-white/40">›</span>
-    </div>
-   </div>
-   <div class="ios-card-group">
-    <div class="ios-card-item" onclick="openSub('backup')">
-     <div class="flex items-center gap-3"><span>💾</span><span data-template-id="set-backup" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Backup / Restore</span>
-     </div><span class="text-white/40">›</span>
-    </div>
-    <div class="ios-card-item" onclick="openSub('about')">
-     <div class="flex items-center gap-3"><span>ℹ️</span><span data-template-id="set-about" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">About System</span>
-     </div><span class="text-white/40">›</span>
-    </div>
-   </div>
-  </div><!-- Sub-setting overlay -->
-  <div id="sub-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);z-index:10000;overflow-y:auto;padding:20px">
-   <div class="glass-strong p-5 max-w-md mx-auto mt-10">
-    <div class="flex justify-between items-center mb-4">
-     <h3 id="sub-title" class="font-bold text-lg"></h3><button onclick="closeSub()" class="text-white/60 text-2xl leading-none">×</button>
-    </div>
-    <div id="sub-content"></div>
-   </div>
-  </div><!-- Bottom Nav -->
-  <nav class="bottom-nav">
-   <button class="nav-btn active" onclick="showPage('home',this)"><span>🏠</span>Home</button> <button class="nav-btn" onclick="showPage('history',this)"><span>📈</span>History</button> <button class="nav-btn" onclick="showPage('notif',this)"><span>🔔</span>Notif</button> <button class="nav-btn" onclick="showPage('settings',this)"><span>⚙️</span>Settings</button>
-  </nav>
-  <script src="/_sdk/editing_sdk.js"></script>
-  <script>
-// Theme auto
-function applyTheme(){
-const h=new Date().getHours();
-document.body.classList.toggle('theme-day',h>=6&&h<18);
-document.body.classList.toggle('theme-night',h<6||h>=18);
-}
-applyTheme();setInterval(applyTheme,60000);
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="apple-touch-icon" href="suanlungna_icon_180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="สวนลุงนะ ฟาร์ม">
+<link rel="manifest" href="manifest.json">
 
-// Nav
-function showPage(name,btn){
-document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-document.getElementById('page-'+name).classList.add('active');
-document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-if(btn)btn.classList.add('active');
+<title>Smart Farm V7.3 Notification Edition</title>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js">
+setTimeout(()=>{
+ const s=document.getElementById('splash');
+ if(s){s.classList.add('fadeout');setTimeout(()=>s.remove(),700);}
+},2200);
+
+
+function saveSchedule(){
+ localStorage.setItem('time1',document.getElementById('time1').value);
+ localStorage.setItem('time2',document.getElementById('time2').value);
+ addLog('Schedule Saved');
+ toast('🕒 บันทึกตารางรดน้ำแล้ว');
 }
 
-// Toast
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
+document.getElementById('time1').value=localStorage.getItem('time1')||'06:00';
+document.getElementById('time2').value=localStorage.getItem('time2')||'17:00';
 
-// Greeting
-function updateGreeting(){
-const h=new Date().getHours();
-let g='Good Evening 🌙';
-if(h>=5&&h<12)g='Good Morning ☀️';
-else if(h>=12&&h<17)g='Good Afternoon 🌤️';
-document.getElementById('greeting-text').textContent=g;
-const d=new Date();
-document.getElementById('greeting-date').textContent=d.toLocaleDateString('en-US',{weekday:'long'})+'\n'+d.getDate()+' '+d.toLocaleDateString('en-US',{month:'long'});
-}
-updateGreeting();setInterval(updateGreeting,60000);
-
-// Animated counter
-function animateValue(el,start,end,suffix,duration){
-if(start===end)return;
-const range=end-start;
-const startTime=performance.now();
-function step(now){
-const progress=Math.min((now-startTime)/duration,1);
-const current=Math.round(start+range*progress);
-el.textContent=current+suffix;
-if(progress<1)requestAnimationFrame(step);
-}
-requestAnimationFrame(step);
-}
-
-// Store previous values for animation
-const prevVals={temp:null,hum:null,rain:null,soil:null,light:null};
-
-// Logs as timeline
-let logs=JSON.parse(localStorage.getItem('logs')||'[]');
-function addLog(icon,msg){
-logs.unshift({icon,msg,time:new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})});
-logs=logs.slice(0,50);
-localStorage.setItem('logs',JSON.stringify(logs));
-renderTimeline();
-}
-function renderTimeline(){
-const c=document.getElementById('timeline-list');
-c.innerHTML=logs.slice(0,10).map(l=>`
-<div class="timeline-item">
-<div class="timeline-dot" style="background:rgba(255,255,255,.1)">${l.icon}</div>
-<div class="flex-1">
-<div class="text-sm text-white/90">${l.msg}</div>
-<div class="text-xs text-white/40">${l.time}</div>
-</div>
-</div>`).join('');
-document.getElementById('history-list').innerHTML=logs.map(l=>`
-<div class="timeline-item">
-<div class="timeline-dot" style="background:rgba(255,255,255,.1)">${l.icon}</div>
-<div class="flex-1">
-<div class="text-sm text-white/90">${l.msg}</div>
-<div class="text-xs text-white/40">${l.time}</div>
-</div>
-</div>`).join('');
-}
-renderTimeline();
-
-// MQTT
-let pumpState='OFF';
-let pumpStartTime=null;
-let pumpTodaySeconds=Number(localStorage.getItem('pumpToday')||0);
-const todayKey=new Date().toDateString();
-if(localStorage.getItem('pumpTodayKey')!==todayKey){pumpTodaySeconds=0;localStorage.setItem('pumpTodayKey',todayKey);}
-
-const client=mqtt.connect("wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt",{username:"smartfarm",password:"Kla12345"});
-client.on("connect",()=>{
-document.getElementById("val-node").textContent="ONLINE";
-document.getElementById("val-node").className="font-bold text-xl mt-1 status-on";
-client.subscribe("farm/pump/status");
-toast("📡 เชื่อมต่อสำเร็จ");addLog('📡','MQTT Connected');
-});
-client.on("offline",()=>{
-document.getElementById("val-node").textContent="OFFLINE";
-document.getElementById("val-node").className="font-bold text-xl mt-1 status-off";
-});
-client.on("message",(t,m)=>{
-if(t==="farm/pump/status"){
-const prev=pumpState;
-pumpState=m.toString();
-updatePumpUI();
-if(prev!==pumpState){
-if(pumpState==='ON')pumpStartTime=Date.now();
-else if(pumpStartTime){pumpTodaySeconds+=Math.round((Date.now()-pumpStartTime)/1000);pumpStartTime=null;localStorage.setItem('pumpToday',pumpTodaySeconds);}
-}
-}
-});
-
-function updatePumpUI(){
-const ring=document.getElementById('pump-ring');
-const label=document.getElementById('pump-label');
-if(pumpState==='ON'){ring.classList.remove('off');ring.classList.add('on');label.textContent='ON';label.className='font-bold mt-1 text-lg status-on';}
-else{ring.classList.remove('on');ring.classList.add('off');label.textContent='OFF';label.className='font-bold mt-1 text-lg status-off';}
-}
-
-function togglePump(){
-if(pumpState==='ON'){client.publish("farm/pump","OFF");toast("🛑 ปิดปั๊ม");addLog('🔴','Pump OFF');}
-else{client.publish("farm/pump","ON");toast("🚰 เปิดปั๊ม");addLog('🟢','Pump ON');}
-}
-
-// Pump runtime display
 setInterval(()=>{
-let runtime=0;
-if(pumpState==='ON'&&pumpStartTime)runtime=Math.round((Date.now()-pumpStartTime)/1000);
-const m=Math.floor(runtime/60),s=runtime%60;
-document.getElementById('pump-runtime').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-const totalMin=Math.round((pumpTodaySeconds+runtime)/60);
-document.getElementById('pump-today').textContent=totalMin+' min';
-},1000);
-
-// Quick actions
-function quickPump(mins){
-client.publish("farm/pump","ON");
-toast('🚿 เปิดปั๊ม '+mins+' นาที');
-addLog('🚿','Quick pump '+mins+' min');
-setTimeout(()=>{client.publish("farm/pump","OFF");toast('🛑 ปิดปั๊มอัตโนมัติ');addLog('🔴','Auto OFF after '+mins+' min');},mins*60000);
-}
-
-// Weather
-async function loadWeather(){
-try{
-const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.7563&longitude=100.5018&current=temperature_2m,relative_humidity_2m,rain,weather_code');
-const d=await r.json();
-const temp=Math.round(d.current.temperature_2m);
-const hum=Math.round(d.current.relative_humidity_2m);
-const rain=Math.round(d.current.rain||0);
-const wc=d.current.weather_code||0;
-
-// Animate sensor values
-if(prevVals.temp!==null)animateValue(document.getElementById('val-temp'),prevVals.temp,temp,'°C',600);
-else document.getElementById('val-temp').textContent=temp+'°C';
-if(prevVals.hum!==null)animateValue(document.getElementById('val-hum'),prevVals.hum,hum,'%',600);
-else document.getElementById('val-hum').textContent=hum+'%';
-if(prevVals.rain!==null)animateValue(document.getElementById('val-rain'),prevVals.rain,rain,' mm',600);
-else document.getElementById('val-rain').textContent=rain+' mm';
-prevVals.temp=temp;prevVals.hum=hum;prevVals.rain=rain;
-
-// Hero
-document.getElementById('hero-temp').textContent=temp+'°';
-let icon='☀️',cond='แดดจัด';
-if(wc>=61)icon='🌧️',cond='ฝนตก';
-else if(wc>=51)icon='🌦️',cond='ฝนปรอย';
-else if(wc>=3)icon='☁️',cond='มีเมฆ';
-else if(wc>=1)icon='⛅',cond='เมฆบางส่วน';
-document.getElementById('weather-icon').textContent=icon;
-document.getElementById('hero-condition').textContent=cond;
-document.getElementById('hero-hum').textContent='💧 '+hum+'%';
-document.getElementById('hero-rain').textContent='🌧️ '+rain+' mm';
-
-const limit=Number(localStorage.getItem('rainLimit')||2);
-if(rain>=limit&&localStorage.getItem('autoPump')==='true'){client.publish('farm/pump','OFF');toast('🌧️ ฝนตก ปิดปั๊มอัตโนมัติ');addLog('🌧','Auto OFF rain');}
-}catch(e){}}
-loadWeather();setInterval(loadWeather,600000);
-
-// Settings
-function initToggles(){
-if(localStorage.getItem('autoPump')==='true')document.getElementById('tog-autoPump').classList.add('on');
-if(localStorage.getItem('notify')==='true')document.getElementById('tog-notify').classList.add('on');
-}
-initToggles();
-
-function toggleSetting(key){
-const tog=document.getElementById('tog-'+key);
-const isOn=tog.classList.toggle('on');
-localStorage.setItem(key,isOn);
-toast((isOn?'✅ เปิด':'❌ ปิด')+' '+key);addLog('⚙️',key+' '+(isOn?'ON':'OFF'));
-}
-
-function openSub(type){
-const overlay=document.getElementById('sub-overlay');const title=document.getElementById('sub-title');const content=document.getElementById('sub-content');
-overlay.style.display='block';
-if(type==='rain'){title.textContent='🌧️ Rain Limit';content.innerHTML='<label class="text-sm text-white/60">ปริมาณฝนที่หยุดปั๊ม (mm)</label><input type="number" id="inp-rain" min="0" max="100" value="'+(localStorage.getItem('rainLimit')||2)+'" class="w-full mt-2 p-3 rounded-xl bg-white/10 text-white border border-white/20"><button onclick="saveRain()" class="w-full mt-4 p-3 rounded-xl bg-green-500 font-bold">💾 บันทึก</button>';}
-else if(type==='schedule'){title.textContent='🕒 Smart Schedule';content.innerHTML='<label class="text-sm text-white/60">เวลารดน้ำรอบ 1</label><input type="time" id="inp-t1" value="'+(localStorage.getItem('time1')||'06:00')+'" class="w-full mt-1 p-3 rounded-xl bg-white/10 text-white border border-white/20 mb-3"><label class="text-sm text-white/60">เวลารดน้ำรอบ 2</label><input type="time" id="inp-t2" value="'+(localStorage.getItem('time2')||'17:00')+'" class="w-full mt-1 p-3 rounded-xl bg-white/10 text-white border border-white/20 mb-3"><label class="flex items-center gap-2 text-sm"><input type="checkbox" id="inp-sched-en" '+(localStorage.getItem('scheduleEnable')==='true'?'checked':'')+'>เปิดใช้งาน</label><button onclick="saveSchedule()" class="w-full mt-4 p-3 rounded-xl bg-green-500 font-bold">💾 บันทึก</button>';}
-else if(type==='farm'){title.textContent='🌱 Farm Information';content.innerHTML='<label class="text-sm text-white/60">ชื่อพืช</label><input id="inp-pname" value="'+(localStorage.getItem('plantName')||'แตงกวา')+'" class="w-full mt-1 p-3 rounded-xl bg-white/10 text-white border border-white/20 mb-3"><label class="text-sm text-white/60">วันที่ปลูก</label><input type="date" id="inp-pdate" value="'+(localStorage.getItem('plantDate')||'2026-05-25')+'" class="w-full mt-1 p-3 rounded-xl bg-white/10 text-white border border-white/20 mb-3"><button onclick="saveFarm()" class="w-full mt-2 p-3 rounded-xl bg-green-500 font-bold">💾 บันทึก</button>';}
-else if(type==='mqtt'){title.textContent='📡 MQTT Settings';content.innerHTML='<p class="text-sm text-white/60">Server: HiveMQ Cloud<br>Status: '+(client.connected?'<span class="status-on">Connected</span>':'<span class="status-off">Disconnected</span>')+'</p>';}
-else if(type==='telegram'){title.textContent='✈️ Telegram';content.innerHTML='<label class="text-sm text-white/60">Bot Token</label><input id="inp-tgtoken" value="'+(localStorage.getItem('tgToken')||'')+'" class="w-full mt-1 p-3 rounded-xl bg-white/10 text-white border border-white/20 mb-3" placeholder="123456:ABC..."><label class="text-sm text-white/60">Chat ID</label><input id="inp-tgchat" value="'+(localStorage.getItem('tgChat')||'')+'" class="w-full mt-1 p-3 rounded-xl bg-white/10 text-white border border-white/20 mb-3"><button onclick="saveTelegram()" class="w-full mt-2 p-3 rounded-xl bg-green-500 font-bold">💾 บันทึก</button>';}
-else if(type==='about'){title.textContent='ℹ️ About';content.innerHTML='<p class="text-white/80">Smart Farm V12.0<br>สวนลุงนะ ฟาร์ม<br><br>IoT Dashboard ควบคุมระบบรดน้ำอัตโนมัติ<br>พัฒนาด้วย ❤️</p>';}
-else if(type==='backup'){title.textContent='💾 Backup / Restore';content.innerHTML='<button onclick="doBackup()" class="w-full p-3 rounded-xl bg-blue-500 font-bold mb-3">📥 Export</button><button onclick="doRestore()" class="w-full p-3 rounded-xl bg-orange-500 font-bold">📤 Import</button>';}
-}
-function closeSub(){document.getElementById('sub-overlay').style.display='none';}
-function saveRain(){localStorage.setItem('rainLimit',document.getElementById('inp-rain').value);toast('💾 บันทึก');addLog('⚙️','Rain Limit: '+document.getElementById('inp-rain').value);closeSub();}
-function saveSchedule(){localStorage.setItem('time1',document.getElementById('inp-t1').value);localStorage.setItem('time2',document.getElementById('inp-t2').value);localStorage.setItem('scheduleEnable',document.getElementById('inp-sched-en').checked);toast('💾 บันทึก Schedule');addLog('⚙️','Schedule saved');closeSub();}
-function saveFarm(){localStorage.setItem('plantName',document.getElementById('inp-pname').value);localStorage.setItem('plantDate',document.getElementById('inp-pdate').value);toast('💾 บันทึกข้อมูลพืช');addLog('🌱','Farm saved');closeSub();}
-function saveTelegram(){localStorage.setItem('tgToken',document.getElementById('inp-tgtoken').value);localStorage.setItem('tgChat',document.getElementById('inp-tgchat').value);toast('💾 บันทึก Telegram');addLog('✈️','Telegram saved');closeSub();}
-function doBackup(){const data=JSON.stringify(localStorage);const blob=new Blob([data],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='smartfarm_backup.json';a.click();toast('📥 Export สำเร็จ');}
-function doRestore(){const inp=document.createElement('input');inp.type='file';inp.accept='.json';inp.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);Object.keys(d).forEach(k=>localStorage.setItem(k,d[k]));toast('📤 Import สำเร็จ');}catch(e){toast('❌ ไฟล์ไม่ถูกต้อง');}};r.readAsText(f);};inp.click();}
-
-// Schedule auto
-setInterval(()=>{
-if(localStorage.getItem('scheduleEnable')!=='true')return;
-const hhmm=new Date().toTimeString().slice(0,5);
-if(hhmm===localStorage.getItem('time1')||hhmm===localStorage.getItem('time2')){client.publish('farm/pump','ON');addLog('🕒','Schedule pump ON');}
+ const now=new Date();
+ const hhmm=now.toTimeString().slice(0,5);
+ if(hhmm===document.getElementById('time1').value ||
+    hhmm===document.getElementById('time2').value){
+      client.publish('farm/pump','ON');
+ }
 },30000);
 
-// Splash
-setTimeout(()=>{const s=document.getElementById('splash');s.classList.add('fadeout');setTimeout(()=>s.remove(),800);},2000);
+client.on("connect",()=>{
+ document.getElementById('lastSeen').innerHTML=new Date().toLocaleTimeString('th-TH');
+});
+
 </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a12eea9f606533b6',t:'MTc4MjY3MzAzOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+<style>
+body{margin:0;padding:15px;font-family:Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#0f172a,#14532d)}
+.header,.card,.toast{background:rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:24px}
+.header{text-align:center;padding:18px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{text-align:center;padding:16px}
+.label{font-size:14px}.value{font-size:22px;font-weight:bold;margin-top:8px}
+button{width:100%;padding:16px;border:none;border-radius:18px;margin-top:10px;font-size:18px;color:#fff;font-weight:bold}
+.on{background:#22c55e}.off{background:#ef4444}
+.online{color:#4ade80}.offline{color:#f87171}
+.toast{position:fixed;top:15px;left:15px;right:15px;padding:14px;display:none;text-align:center;z-index:999}
+</style>
+
+<style>
+#splash{
+position:fixed;inset:0;
+background:linear-gradient(135deg,#0f172a,#14532d);
+display:flex;flex-direction:column;
+justify-content:center;align-items:center;
+z-index:99999;
+transition:opacity .6s ease;
+}
+#splash img{width:140px;height:140px;border-radius:24px}
+#splash h1{color:white;margin-top:16px;font-family:Arial}
+.fadeout{opacity:0;pointer-events:none}
+</style>
+
+</head>
+<body>
+
+<div id="splash">
+<img src="suanlungna_icon_180.png">
+<h1>🌱 สวนลุงนะ ฟาร์ม🌏</h1>
+<p style="color:white">อย่าทำเฒ่า ถ้าเท่าแต่แหลง</p>
+</div>
+
+<div id="toast" class="toast"></div>
+
+
+<div class="header">
+<img src="suanlungna_icon_180.png" style="width:90px;height:90px;border-radius:20px;margin-bottom:10px;">
+<h1>🌱 สวนลุงนะ ฟาร์ม</h1>
+<p>Smart Farm Dashboard V7.5 Branding</p>
+</div>
+
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+<button class="on" onclick="pumpOn()">🟢 เปิดปั๊ม</button>
+<button class="off" onclick="pumpOff()">🔴 ปิดปั๊ม</button>
+</div>
+
+<div class="grid">
+<div class="card"><div class="label">📡 NodeMCU</div><div id="node" class="value offline">OFFLINE</div></div>
+<div class="card"><div class="label">🚰 Pump</div><div id="pump" class="value">UNKNOWN</div></div>
+<div class="card"><div class="label">⏰ เวลา</div><div id="clock" class="value">--:--:--</div></div>
+<div class="card"><div class="label">📅 อายุพืช</div><div id="age" class="value">0 วัน</div></div>
+<div class="card"><div class="label">🌡️ อุณหภูมิ</div><div id="temp" class="value">--°C</div></div>
+<div class="card"><div class="label">💧 ความชื้น</div><div id="hum" class="value">--%</div></div>
+<div class="card"><div class="label">🌧️ ปริมาณฝน</div><div id="rain" class="value">--</div></div>
+<div class="card"><div class="label">🤖 Auto Pump</div><div class="value"><input type="checkbox" id="autoPump"></div></div>
+<div class="card"><div class="label">⚙️ Rain Limit (mm)</div><div class="value"><input type="number" id="rainLimit" min="0" max="100" style="width:80px"></div></div>
+<div class="card"><div class="label">📊 System</div><div id="systemInfo" class="value" style="font-size:14px">V7.4 PRO</div></div>
+
+
+<div class="card">
+<div class="label">🕒 Smart Schedule</div>
+<div style="font-size:12px;margin-top:8px">
+<input type="time" id="time1" value="06:00"><br><br>
+<input type="time" id="time2" value="17:00"><br><br>
+<button class="on" onclick="saveSchedule()">💾 บันทึกเวลา</button>
+</div>
+</div>
+
+<div class="card">
+<div class="label">📡 Last Seen</div>
+<div id="lastSeen" class="value" style="font-size:16px">--</div>
+</div>
+
+</div>
+
+<button class="on" onclick="saveSettings()">💾 บันทึกค่า</button>
+
+<div class="card" style="margin-top:12px">
+<h3>📋 Activity Log</h3>
+<div id="logs" style="text-align:left;font-size:13px"></div>
+</div>
+
+<script>
+
+function addLog(msg){
+ let logs=JSON.parse(localStorage.getItem('logs')||'[]');
+ logs.unshift(new Date().toLocaleTimeString('th-TH')+' - '+msg);
+ logs=logs.slice(0,20);
+ localStorage.setItem('logs',JSON.stringify(logs));
+ renderLogs();
+}
+function renderLogs(){
+ const logs=JSON.parse(localStorage.getItem('logs')||'[]');
+ const el=document.getElementById('logs');
+ if(el) el.innerHTML=logs.join('<br>');
+}
+
+function toast(msg){
+const t=document.getElementById('toast');
+t.innerHTML=msg;
+t.style.display='block';
+setTimeout(()=>t.style.display='none',3000);
+}
+
+const client=mqtt.connect("wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt",{username:"smartfarm",password:"Kla12345"});
+
+client.on("connect",()=>{
+document.getElementById("node").innerHTML="ONLINE";
+document.getElementById("node").className="value online";
+client.subscribe("farm/pump/status");
+toast("📡 MQTT Connected");addLog('MQTT Connected');
+});
+
+client.on("message",(topic,message)=>{
+if(topic==="farm/pump/status"){
+document.getElementById("pump").innerHTML=message.toString();
+}
+});
+
+function pumpOn(){
+client.publish("farm/pump","ON");
+toast("🚰 ปั๊มเปิดแล้ว");addLog('Pump ON');
+}
+function pumpOff(){
+client.publish("farm/pump","OFF");
+toast("🚰 ปั๊มปิดแล้ว");addLog('Pump OFF');
+}
+
+setInterval(()=>{
+document.getElementById("clock").innerHTML=new Date().toLocaleTimeString("th-TH");
+},1000);
+
+document.getElementById("age").innerHTML=Math.floor((Date.now()-new Date("2026-05-25").getTime())/86400000)+" วัน";
+
+const autoPump=document.getElementById('autoPump');
+autoPump.checked=localStorage.getItem('autoPump')==='true';
+const rainLimit=document.getElementById('rainLimit');
+rainLimit.value=localStorage.getItem('rainLimit')||2;
+
+function updateSystemCard(){
+ document.getElementById('systemInfo').innerHTML =
+ 'AUTO: '+(autoPump.checked?'ON':'OFF')+
+ '<br>RAIN LIMIT: '+rainLimit.value+' mm<br>V7.4.2 PRO';
+}
+
+function saveSettings(){
+ localStorage.setItem('rainLimit', rainLimit.value);
+ localStorage.setItem('autoPump', autoPump.checked);
+ updateSystemCard();
+ toast('💾 บันทึกค่าเรียบร้อย');
+ addLog('Save Settings');
+}
+
+autoPump.onchange=()=>{
+ localStorage.setItem('autoPump',autoPump.checked);
+ updateSystemCard();
+};
+
+updateSystemCard();
+renderLogs();
+
+
+async function loadWeather(){
+try{
+const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.7563&longitude=100.5018&current=temperature_2m,relative_humidity_2m,rain');
+const d=await r.json();
+const rain=Math.round(d.current.rain||0);
+
+document.getElementById('temp').innerHTML=Math.round(d.current.temperature_2m)+'°C';
+document.getElementById('hum').innerHTML=Math.round(d.current.relative_humidity_2m)+'%';
+document.getElementById('rain').innerHTML=rain+' mm';
+
+updateSystemCard(); if(rain>=Number(rainLimit.value) && autoPump.checked){
+client.publish('farm/pump','OFF');
+toast('🌧️ ปริมาณฝนสูง ระบบปิดปั๊มอัตโนมัติ');addLog('Auto Pump OFF');
+}
+}catch(e){}
+}
+loadWeather();
+setInterval(loadWeather,600000);
+
+setTimeout(()=>{
+ const s=document.getElementById('splash');
+ if(s){s.classList.add('fadeout');setTimeout(()=>s.remove(),700);}
+},2200);
+
+
+function saveSchedule(){
+ localStorage.setItem('time1',document.getElementById('time1').value);
+ localStorage.setItem('time2',document.getElementById('time2').value);
+ addLog('Schedule Saved');
+ toast('🕒 บันทึกตารางรดน้ำแล้ว');
+}
+
+document.getElementById('time1').value=localStorage.getItem('time1')||'06:00';
+document.getElementById('time2').value=localStorage.getItem('time2')||'17:00';
+
+setInterval(()=>{
+ const now=new Date();
+ const hhmm=now.toTimeString().slice(0,5);
+ if(hhmm===document.getElementById('time1').value ||
+    hhmm===document.getElementById('time2').value){
+      client.publish('farm/pump','ON');
+ }
+},30000);
+
+client.on("connect",()=>{
+ document.getElementById('lastSeen').innerHTML=new Date().toLocaleTimeString('th-TH');
+});
+
+</script>
 </body></html>
