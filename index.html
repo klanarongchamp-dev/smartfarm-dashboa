@@ -1,260 +1,77 @@
+<!```html
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" class="h-full">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="apple-touch-icon" href="suanlungna_icon_180.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="สวนลุงนะ ฟาร์ม">
-<link rel="manifest" href="manifest.json">
-
-<title>Smart Farm V7.3 Notification Edition</title>
-<script src="https://unpkg.com/mqtt/dist/mqtt.min.js">
-setTimeout(()=>{
- const s=document.getElementById('splash');
- if(s){s.classList.add('fadeout');setTimeout(()=>s.remove(),700);}
-},2200);
-
-
-function saveSchedule(){
- localStorage.setItem('time1',document.getElementById('time1').value);
- localStorage.setItem('time2',document.getElementById('time2').value);
- addLog('Schedule Saved');
- toast('🕒 บันทึกตารางรดน้ำแล้ว');
-}
-
-document.getElementById('time1').value=localStorage.getItem('time1')||'06:00';
-document.getElementById('time2').value=localStorage.getItem('time2')||'17:00';
-
-setInterval(()=>{
- const now=new Date();
- const hhmm=now.toTimeString().slice(0,5);
- if(hhmm===document.getElementById('time1').value ||
-    hhmm===document.getElementById('time2').value){
-      client.publish('farm/pump','ON');
- }
-},30000);
-
-client.on("connect",()=>{
- document.getElementById('lastSeen').innerHTML=new Date().toLocaleTimeString('th-TH');
-});
-
-</script>
-<style>
-body{margin:0;padding:15px;font-family:Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#0f172a,#14532d)}
-.header,.card,.toast{background:rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:24px}
-.header{text-align:center;padding:18px;margin-bottom:12px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.card{text-align:center;padding:16px}
-.label{font-size:14px}.value{font-size:22px;font-weight:bold;margin-top:8px}
-button{width:100%;padding:16px;border:none;border-radius:18px;margin-top:10px;font-size:18px;color:#fff;font-weight:bold}
-.on{background:#22c55e}.off{background:#ef4444}
-.online{color:#4ade80}.offline{color:#f87171}
-.toast{position:fixed;top:15px;left:15px;right:15px;padding:14px;display:none;text-align:center;z-index:999}
-</style>
-
-<style>
-#splash{
-position:fixed;inset:0;
-background:linear-gradient(135deg,#0f172a,#14532d);
-display:flex;flex-direction:column;
-justify-content:center;align-items:center;
-z-index:99999;
-transition:opacity .6s ease;
-}
-#splash img{width:140px;height:140px;border-radius:24px}
-#splash h1{color:white;margin-top:16px;font-family:Arial}
-.fadeout{opacity:0;pointer-events:none}
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สวนลุงนะ Smart Farm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: white; }
+        .theme-dark { color-scheme: dark; }
+        .hidden { display: none; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); }
+    </style>
 </head>
-<body>
+<body class="h-full font-sans p-4">
 
-<div id="splash">
-<img src="suanlungna_icon_180.png">
-<h1>🌱 สวนลุงนะ ฟาร์ม🌏</h1>
-<p style="color:white">อย่าทำเฒ่า ถ้าเท่าแต่แหลง</p>
-</div>
+    <div id="app" class="max-w-md mx-auto">
+        <header class="mb-6 text-center">
+            <h1 class="text-2xl font-bold text-emerald-400">สวนลุงนะ Smart Farm</h1>
+            <p class="text-slate-400 text-sm">ระบบจัดการฟาร์มอัจฉริยะ V14</p>
+        </header>
 
-<div id="toast" class="toast"></div>
+        <div id="dashboard" class="space-y-4">
+            <div class="glass p-5 rounded-2xl border border-slate-700 shadow-xl">
+                <h2 class="text-lg font-semibold mb-2">สถานะเซนเซอร์</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-900 p-4 rounded-xl">
+                        <p class="text-slate-400 text-xs">ความชื้นดิน</p>
+                        <p class="text-2xl font-mono text-blue-400">45%</p>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-xl">
+                        <p class="text-slate-400 text-xs">อุณหภูมิ</p>
+                        <p class="text-2xl font-mono text-orange-400">32°C</p>
+                    </div>
+                </div>
+            </div>
 
+            <button onclick="UI.showError('การแจ้งเตือน', 'ไม่สามารถเชื่อมต่อ MQTT ได้ในขณะนี้')" 
+                    class="w-full py-3 bg-emerald-600 rounded-xl font-bold hover:bg-emerald-700 transition">
+                ตรวจสอบการเชื่อมต่อ
+            </button>
+        </div>
 
-<div class="header">
-<img src="suanlungna_icon_180.png" style="width:90px;height:90px;border-radius:20px;margin-bottom:10px;">
-<h1>🌱 สวนลุงนะ ฟาร์ม</h1>
-<p>Smart Farm Dashboard V7.5 Branding</p>
-</div>
+        <div id="modal" class="hidden fixed inset-0 flex items-center justify-center p-4 bg-black/50 z-50"></div>
+    </div>
 
+    <script>
+        const UI = {
+            showModal(content = "") {
+                const modal = document.getElementById("modal");
+                if (!modal) return;
+                modal.innerHTML = content;
+                modal.classList.remove("hidden");
+            },
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-<button class="on" onclick="pumpOn()">🟢 เปิดปั๊ม</button>
-<button class="off" onclick="pumpOff()">🔴 ปิดปั๊ม</button>
-</div>
+            hideModal() {
+                document.getElementById("modal")?.classList.add("hidden");
+            },
 
-<div class="grid">
-<div class="card"><div class="label">📡 NodeMCU</div><div id="node" class="value offline">OFFLINE</div></div>
-<div class="card"><div class="label">🚰 Pump</div><div id="pump" class="value">UNKNOWN</div></div>
-<div class="card"><div class="label">⏰ เวลา</div><div id="clock" class="value">--:--:--</div></div>
-<div class="card"><div class="label">📅 อายุพืช</div><div id="age" class="value">0 วัน</div></div>
-<div class="card"><div class="label">🌡️ อุณหภูมิ</div><div id="temp" class="value">--°C</div></div>
-<div class="card"><div class="label">💧 ความชื้น</div><div id="hum" class="value">--%</div></div>
-<div class="card"><div class="label">🌧️ ปริมาณฝน</div><div id="rain" class="value">--</div></div>
-<div class="card"><div class="label">🤖 Auto Pump</div><div class="value"><input type="checkbox" id="autoPump"></div></div>
-<div class="card"><div class="label">⚙️ Rain Limit (mm)</div><div class="value"><input type="number" id="rainLimit" min="0" max="100" style="width:80px"></div></div>
-<div class="card"><div class="label">📊 System</div><div id="systemInfo" class="value" style="font-size:14px">V7.4 PRO</div></div>
+            showError(title, message) {
+                this.showModal(`
+                    <div class="p-6 rounded-2xl bg-slate-800 border border-slate-700 max-w-sm w-full">
+                        <h2 class="text-xl font-bold text-red-500 mb-3">${title}</h2>
+                        <p class="mb-6 text-slate-300">${message}</p>
+                        <button onclick="UI.hideModal()" class="w-full px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700">ปิด</button>
+                    </div>
+                `);
+            }
+        };
 
+        console.log("สวนลุงนะ Smart Farm Ready");
+    </script>
+</body>
+</html>
 
-<div class="card">
-<div class="label">🕒 Smart Schedule</div>
-<div style="font-size:12px;margin-top:8px">
-<input type="time" id="time1" value="06:00"><br><br>
-<input type="time" id="time2" value="17:00"><br><br>
-<button class="on" onclick="saveSchedule()">💾 บันทึกเวลา</button>
-</div>
-</div>
-
-<div class="card">
-<div class="label">📡 Last Seen</div>
-<div id="lastSeen" class="value" style="font-size:16px">--</div>
-</div>
-
-</div>
-
-<button class="on" onclick="saveSettings()">💾 บันทึกค่า</button>
-
-<div class="card" style="margin-top:12px">
-<h3>📋 Activity Log</h3>
-<div id="logs" style="text-align:left;font-size:13px"></div>
-</div>
-
-<script>
-
-function addLog(msg){
- let logs=JSON.parse(localStorage.getItem('logs')||'[]');
- logs.unshift(new Date().toLocaleTimeString('th-TH')+' - '+msg);
- logs=logs.slice(0,20);
- localStorage.setItem('logs',JSON.stringify(logs));
- renderLogs();
-}
-function renderLogs(){
- const logs=JSON.parse(localStorage.getItem('logs')||'[]');
- const el=document.getElementById('logs');
- if(el) el.innerHTML=logs.join('<br>');
-}
-
-function toast(msg){
-const t=document.getElementById('toast');
-t.innerHTML=msg;
-t.style.display='block';
-setTimeout(()=>t.style.display='none',3000);
-}
-
-const client=mqtt.connect("wss://650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud:8884/mqtt",{username:"smartfarm",password:"Kla12345"});
-
-client.on("connect",()=>{
-document.getElementById("node").innerHTML="ONLINE";
-document.getElementById("node").className="value online";
-client.subscribe("farm/pump/status");
-toast("📡 MQTT Connected");addLog('MQTT Connected');
-});
-
-client.on("message",(topic,message)=>{
-if(topic==="farm/pump/status"){
-document.getElementById("pump").innerHTML=message.toString();
-}
-});
-
-function pumpOn(){
-client.publish("farm/pump","ON");
-toast("🚰 ปั๊มเปิดแล้ว");addLog('Pump ON');
-}
-function pumpOff(){
-client.publish("farm/pump","OFF");
-toast("🚰 ปั๊มปิดแล้ว");addLog('Pump OFF');
-}
-
-setInterval(()=>{
-document.getElementById("clock").innerHTML=new Date().toLocaleTimeString("th-TH");
-},1000);
-
-document.getElementById("age").innerHTML=Math.floor((Date.now()-new Date("2026-05-25").getTime())/86400000)+" วัน";
-
-const autoPump=document.getElementById('autoPump');
-autoPump.checked=localStorage.getItem('autoPump')==='true';
-const rainLimit=document.getElementById('rainLimit');
-rainLimit.value=localStorage.getItem('rainLimit')||2;
-
-function updateSystemCard(){
- document.getElementById('systemInfo').innerHTML =
- 'AUTO: '+(autoPump.checked?'ON':'OFF')+
- '<br>RAIN LIMIT: '+rainLimit.value+' mm<br>V7.4.2 PRO';
-}
-
-function saveSettings(){
- localStorage.setItem('rainLimit', rainLimit.value);
- localStorage.setItem('autoPump', autoPump.checked);
- updateSystemCard();
- toast('💾 บันทึกค่าเรียบร้อย');
- addLog('Save Settings');
-}
-
-autoPump.onchange=()=>{
- localStorage.setItem('autoPump',autoPump.checked);
- updateSystemCard();
-};
-
-updateSystemCard();
-renderLogs();
-
-
-async function loadWeather(){
-try{
-const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.7563&longitude=100.5018&current=temperature_2m,relative_humidity_2m,rain');
-const d=await r.json();
-const rain=Math.round(d.current.rain||0);
-
-document.getElementById('temp').innerHTML=Math.round(d.current.temperature_2m)+'°C';
-document.getElementById('hum').innerHTML=Math.round(d.current.relative_humidity_2m)+'%';
-document.getElementById('rain').innerHTML=rain+' mm';
-
-updateSystemCard(); if(rain>=Number(rainLimit.value) && autoPump.checked){
-client.publish('farm/pump','OFF');
-toast('🌧️ ปริมาณฝนสูง ระบบปิดปั๊มอัตโนมัติ');addLog('Auto Pump OFF');
-}
-}catch(e){}
-}
-loadWeather();
-setInterval(loadWeather,600000);
-
-setTimeout(()=>{
- const s=document.getElementById('splash');
- if(s){s.classList.add('fadeout');setTimeout(()=>s.remove(),700);}
-},2200);
-
-
-function saveSchedule(){
- localStorage.setItem('time1',document.getElementById('time1').value);
- localStorage.setItem('time2',document.getElementById('time2').value);
- addLog('Schedule Saved');
- toast('🕒 บันทึกตารางรดน้ำแล้ว');
-}
-
-document.getElementById('time1').value=localStorage.getItem('time1')||'06:00';
-document.getElementById('time2').value=localStorage.getItem('time2')||'17:00';
-
-setInterval(()=>{
- const now=new Date();
- const hhmm=now.toTimeString().slice(0,5);
- if(hhmm===document.getElementById('time1').value ||
-    hhmm===document.getElementById('time2').value){
-      client.publish('farm/pump','ON');
- }
-},30000);
-
-client.on("connect",()=>{
- document.getElementById('lastSeen').innerHTML=new Date().toLocaleTimeString('th-TH');
-});
-
-</script>
-</body></html>
+```
