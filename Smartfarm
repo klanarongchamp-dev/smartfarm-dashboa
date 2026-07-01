@@ -1,0 +1,272 @@
+#include <ESP8266WiFi.h>
+#include <WiFiClientSecure.h>
+#include <WiFiManager.h>
+#include <PubSubClient.h>
+#include <Wire.h>
+#include <RTClib.h>
+
+// ==================== MQTT ====================
+const char* mqtt_server =
+"650188a0ee2b4367b7c131fb385590a9.s1.eu.hivemq.cloud";
+
+const int mqtt_port = 8883;
+
+const char* mqtt_user = "smartfarm";
+const char* mqtt_pass = "Kla12345";
+
+// ==================== Relay ====================
+#define RELAY_PIN D5
+// ==================== Schedule ====================
+
+String schedule1On  = "06:00";
+String schedule1Off = "06:10";
+
+String schedule2On  = "17:00";
+String schedule2Off = "17:10";
+
+String lastScheduleAction = "";
+
+// ==================== Heartbeat ====================
+
+unsigned long lastHeartbeat = 0;
+
+// ==================== RTC ====================
+RTC_DS3231 rtc;
+
+// ==================== MQTT Client ====================
+WiFiClientSecure espClient;
+PubSubClient client(espClient);
+
+// -------------------------------------------------
+
+void publishStatus()
+{
+if (digitalRead(RELAY_PIN) == LOW)
+{
+client.publish("farm/pump/status", "ON", true);
+Serial.println("Status = ON");
+}
+else
+{
+client.publish("farm/pump/status", "OFF", true);
+Serial.println("Status = OFF");
+}
+}
+
+// -------------------------------------------------
+
+void publishTime()
+{
+DateTime now = rtc.now();
+
+char timeString[20];
+
+sprintf(
+timeString,
+"%02d:%02d:%02d",
+now.hour(),
+now.minute(),
+now.second()
+);
+
+client.publish("farm/time", timeString, true);
+}
+
+// -------------------------------------------------
+
+void callback(char* topic, byte* payload, unsigned int length)
+{
+String msg = "";
+
+for (unsigned int i = 0; i < length; i++)
+{
+msg += (char)payload[i];
+}
+
+Serial.println("===============");
+Serial.print("Topic : ");
+Serial.println(topic);
+
+Serial.print("Message : ");
+Serial.println(msg);
+
+if (msg == "ON")
+{
+digitalWrite(RELAY_PIN, LOW);
+Serial.println("Pump ON");
+publishStatus();
+}
+
+else if (msg == "OFF")
+{
+digitalWrite(RELAY_PIN, HIGH);
+Serial.println("Pump OFF");
+publishStatus();
+}
+}
+
+// -------------------------------------------------
+
+void reconnect()
+{
+while (!client.connected())
+{
+Serial.print("Connecting MQTT... ");
+
+if (client.connect(  
+      "ESP8266Farm",  
+      mqtt_user,  
+      mqtt_pass))  
+{  
+  Serial.println("Connected");  
+
+  client.subscribe("farm/pump");  
+
+  publishStatus();  
+}  
+else  
+{  
+  Serial.print("Failed rc=");  
+  Serial.println(client.state());  
+
+  delay(5000);  
+}
+
+}
+}
+void checkSchedule()
+{
+DateTime now = rtc.now();
+
+char buf[6];
+
+sprintf(
+buf,
+“%02d:%02d”,
+now.hour(),
+now.minute()
+);
+
+String currentTime = String(buf);
+
+// Schedule 1 ON
+
+if (currentTime == schedule1On &&
+lastScheduleAction != “S1ON”)
+{
+digitalWrite(RELAY_PIN, LOW);
+
+publishStatus();
+Serial.println("Schedule 1 ON");
+lastScheduleAction = "S1ON";
+
+}
+
+// Schedule 1 OFF
+
+if (currentTime == schedule1Off &&
+lastScheduleAction != “S1OFF”)
+{
+digitalWrite(RELAY_PIN, HIGH);
+
+publishStatus();
+Serial.println("Schedule 1 OFF");
+lastScheduleAction = "S1OFF";
+
+}
+
+// Schedule 2 ON
+
+if (currentTime == schedule2On &&
+lastScheduleAction != “S2ON”)
+{
+digitalWrite(RELAY_PIN, LOW);
+
+publishStatus();
+Serial.println("Schedule 2 ON");
+lastScheduleAction = "S2ON";
+
+}
+
+// Schedule 2 OFF
+
+if (currentTime == schedule2Off &&
+lastScheduleAction != “S2OFF”)
+{
+digitalWrite(RELAY_PIN, HIGH);
+
+publishStatus();
+Serial.println("Schedule 2 OFF");
+lastScheduleAction = "S2OFF";
+
+}
+}
+
+// -------------------------------------------------
+
+void setup()
+{
+Serial.begin(115200);
+
+pinMode(RELAY_PIN, OUTPUT);
+
+// ปั๊มปิดตอนเริ่ม
+digitalWrite(RELAY_PIN, HIGH);
+
+Serial.println();
+Serial.println("===== SMART FARM =====");
+
+WiFiManager wm;
+
+bool res = wm.autoConnect("SmartFarm_Setup");
+
+if (!res)
+{
+ESP.restart();
+}
+
+Serial.println("WiFi Connected");
+Serial.println(WiFi.localIP());
+
+// RTC
+Wire.begin(D2, D1);
+
+if (!rtc.begin())
+{
+Serial.println("RTC NOT FOUND");
+}
+else
+{
+Serial.println("RTC OK");
+}
+
+espClient.setInsecure();
+
+client.setServer(mqtt_server, mqtt_port);
+client.setCallback(callback);
+}
+
+// -------------------------------------------------
+
+unsigned long lastRTC = 0;
+
+void loop()
+{
+if (WiFi.status() != WL_CONNECTED)
+{
+return;
+}
+
+if (!client.connected())
+{
+reconnect();
+}
+
+client.loop();
+
+if (millis() - lastRTC > 1000)
+{
+publishTime();
+lastRTC = millis();
+}
+}
